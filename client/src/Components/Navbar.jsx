@@ -17,7 +17,7 @@ const Navbar = () => {
                     {/* Logo */}
                     <div className="text-xl sm:text-2xl font-bold tracking-wide text-white cursor-pointer">
                         <span className="text-white">Gyanendra</span>
-                        <span className="text - orange - 500 text-3xl">.</span>
+                        <span className="text-orange-500 text-3xl">.</span>
                     </div>
 
                     {/* Desktop Menu */}
@@ -30,7 +30,7 @@ const Navbar = () => {
                             >
                                 <NavLink to={`/${item.toLowerCase()}`}
                                     className={({ isActive }) => {
-                                        return isActive ? 'text - orange - 500' : 'text - white'
+                                        return isActive ? 'text-orange-500' : 'text-white'
                                     }}
                                 >{item} </NavLink>
                             </li>
@@ -120,7 +120,7 @@ const Navbar = () => {
                         >
                             <NavLink to={`/${item.toLowerCase()}`}
                                 className={({ isActive }) => {
-                                    return isActive ? 'text - orange - 500' : 'text - white'
+                                    return isActive ? 'text-orange-500' : 'text-white'
                                 }}
                             >{item}</NavLink>
                         </li>
