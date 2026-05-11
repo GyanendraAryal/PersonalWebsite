@@ -1,4 +1,3 @@
-import Counter from "./Components/Counter"
 import Navbar from "./Components/Navbar"
 function App() {
   
