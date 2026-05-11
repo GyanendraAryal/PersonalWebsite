@@ -8,7 +8,7 @@ const Navbar = () => {
     const navItems = ['Home', 'Services', 'Resume', 'Work', 'Contact']
 
     return (
-        <nav className="w-full bg-blue-900 shadow-md fixed top-0 left-0 z-50">
+        <nav className="w-full bg-slate-900 shadow-md fixed top-0 left-0 z-50">
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
