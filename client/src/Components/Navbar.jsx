@@ -1,14 +1,14 @@
-import { useState,useEffect } from 'react'
-import { NavLink, useLocation } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { NavLink, useLocation, Link } from 'react-router-dom'
 
 const Navbar = () => {
 
     const [mobileView, setMobileView] = useState(false)
     const location = useLocation();
 
-    useEffect(()=>{
+    useEffect(() => {
         setMobileView(false)
-    },[location.pathname]);
+    }, [location.pathname]);
 
     const navItems = [
         { name: "Home", path: "/" },
@@ -18,9 +18,9 @@ const Navbar = () => {
         { name: "Contact", path: "/contact" }
     ];
 
-    const linkClass = ({ isActive }) =>`relative transition-all duration-300 ${isActive
-            ? "text-orange-500 after:absolute after:left-0 after:-bottom-1 after:h-[2px] after:w-full after:bg-orange-500"
-            : "text-white hover:text-orange-400"
+    const linkClass = ({ isActive }) => `relative transition-all duration-300 ${isActive
+        ? "text-orange-500 after:absolute after:left-0 after:-bottom-1 after:h-[2px] after:w-full after:bg-orange-500"
+        : "text-white hover:text-orange-400"
         }`;
 
     return (
@@ -31,10 +31,11 @@ const Navbar = () => {
                 <div className="flex items-center justify-between h-16">
 
                     {/* Logo */}
-                    <div className="text-xl sm:text-2xl font-bold tracking-wide text-white cursor-pointer">
-                        <span className="text-white">Gyanendra</span>
-                        <span className="text-orange-500 text-3xl">..</span>
-                    </div>
+                    <Link to="/" >
+                        <div className="text-xl sm:text-2xl font-bold tracking-wide text-white cursor-pointer">
+                            <span className="text-white">Gyanendra</span>
+                            <span className="text-orange-500 text-3xl">..</span>
+                        </div></Link>
 
                     {/* Desktop Menu */}
                     <ul className="hidden md:flex items-center gap-8 text-white font-medium text-sm lg:text-base">
