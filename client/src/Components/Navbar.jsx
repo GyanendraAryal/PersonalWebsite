@@ -1,11 +1,27 @@
-import { useState } from 'react'
-import { NavLink } from 'react-router-dom'
+import { useState,useEffect } from 'react'
+import { NavLink, useLocation } from 'react-router-dom'
 
 const Navbar = () => {
 
     const [mobileView, setMobileView] = useState(false)
+    const location = useLocation();
 
-    const navItems = ['Home', 'Services', 'Resume', 'Work', 'Contact']
+    useEffect(()=>{
+        setMobileView(false)
+    },[location.pathname]);
+
+    const navItems = [
+        { name: "Home", path: "/" },
+        { name: "Services", path: "/service" },
+        { name: "Work", path: "/work" },
+        { name: "Resume", path: "/resume" },
+        { name: "Contact", path: "/contact" }
+    ];
+
+    const linkClass = ({ isActive }) =>`relative transition-all duration-300 ${isActive
+            ? "text-orange-500 after:absolute after:left-0 after:-bottom-1 after:h-[2px] after:w-full after:bg-orange-500"
+            : "text-white hover:text-orange-400"
+        }`;
 
     return (
         <nav className="w-full bg-slate-900 shadow-md fixed top-0 left-0 z-50">
@@ -17,7 +33,7 @@ const Navbar = () => {
                     {/* Logo */}
                     <div className="text-xl sm:text-2xl font-bold tracking-wide text-white cursor-pointer">
                         <span className="text-white">Gyanendra</span>
-                        <span className="text-orange-500 text-3xl">.</span>
+                        <span className="text-orange-500 text-3xl">..</span>
                     </div>
 
                     {/* Desktop Menu */}
@@ -25,14 +41,12 @@ const Navbar = () => {
 
                         {navItems.map((item) => (
                             <li
-                                key={item}
+                                key={item.path}
                                 className="cursor-pointer transition-all duration-300 hover:text-red-400 hover:scale-105"
                             >
-                                <NavLink to={`/${item.toLowerCase()}`}
-                                    className={({ isActive }) => {
-                                        return isActive ? 'text-orange-500' : 'text-white'
-                                    }}
-                                >{item} </NavLink>
+                                <NavLink to={item.path}
+                                    className={linkClass}
+                                >{item.name} </NavLink>
                             </li>
                         ))}
 
@@ -114,15 +128,13 @@ const Navbar = () => {
                 <ul className="flex flex-col items-start gap-8 px-8 py-6 text-white text-lg font-medium">
                     {navItems.map((item) => (
                         <li
-                            key={item}
+                            key={item.path}
                             onClick={() => setMobileView(false)}
                             className="cursor-pointer transition-all duration-300 hover:text-red-400 hover:translate-x-2"
                         >
-                            <NavLink to={`/${item.toLowerCase()}`}
-                                className={({ isActive }) => {
-                                    return isActive ? 'text-orange-500' : 'text-white'
-                                }}
-                            >{item}</NavLink>
+                            <NavLink to={item.path}
+                                className={linkClass}
+                            >{item.name}</NavLink>
                         </li>
 
                     ))}
