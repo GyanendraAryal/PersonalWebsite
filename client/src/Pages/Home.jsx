@@ -1,11 +1,11 @@
 import { Outlet } from "react-router-dom"
 import Navbar from "../Components/Navbar"
-import Herosection from "../Components/Herosection"
+import HeroSlider from "../Components/HeroSlider"
 
 const Home = () => {
     return (
         <>
-        <Herosection/>
+        <HeroSlider/>
         </>
     )
 }

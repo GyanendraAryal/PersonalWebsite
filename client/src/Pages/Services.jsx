@@ -1,22 +1,48 @@
+import { Monitor, Code2, Layers, LayoutDashboard, Plug, Sparkles } from "lucide-react";
+import ServiceCard from "../Components/ServiceCard";
+
 const services = [
   {
-    title: 'Frontend Development',
-    desc: 'Modern responsive UI with React and TailwindCSS.',
+    icon: Monitor,
+    tag: "Frontend",
+    title: "Frontend Development",
+    desc: "Building modern, responsive, and interactive UIs using React, Tailwind CSS, and component-based architecture."
   },
   {
-    title: 'Backend Development',
-    desc: 'REST APIs using Node.js and Express.',
+    icon: Code2,
+    tag: "React",
+    title: "React Application Development",
+    desc: "Creating scalable single-page applications with routing, API integration, state management, and reusable components."
   },
   {
-    title: 'Full Stack Projects',
-    desc: 'Complete MERN stack applications.',
+    icon: Layers,
+    tag: "Full Stack",
+    title: "Full-Stack MVP Development",
+    desc: "Developing complete web applications using MERN stack with REST APIs, authentication, and database integration."
   },
-]
+  {
+    icon: LayoutDashboard,
+    tag: "Admin",
+    title: "Dashboard & Admin Panels",
+    desc: "Designing clean and functional dashboards for managing data like projects, users, and analytics."
+  },
+  {
+    icon: Plug,
+    tag: "Backend",
+    title: "API Integration & Data Handling",
+    desc: "Connecting frontend apps with APIs (or mock JSON data) to build dynamic, real-world applications."
+  },
+  {
+    icon: Sparkles,
+    tag: "UI / UX",
+    title: "UI/UX Focused Development",
+    desc: "Crafting smooth user experiences with animations, responsive layouts, and modern design principles."
+  }
+];
 
 const Services = () => {
   return (
     <section className="min-h-screen px-6 py-20">
-
       <div className="max-w-6xl mx-auto">
 
         <h1 className="text-5xl font-bold mb-14 text-center">
@@ -24,30 +50,14 @@ const Services = () => {
         </h1>
 
         <div className="grid md:grid-cols-3 gap-8">
-
           {services.map((service, index) => (
-            <div
-              key={index}
-              className="bg-slate-900 border border-slate-800 rounded-2xl p-8 hover:shadow-2xl shadow-amber-600 transition duration-300 hover:-translate-y-2"
-            >
-
-              <h2 className="text-2xl text-orange-500 font-semibold mb-4">
-                {service.title}
-              </h2>
-
-              <p className="text-white leading-relaxed">
-                {service.desc}
-              </p>
-
-            </div>
+            <ServiceCard key={index} service={service} />
           ))}
-
         </div>
 
       </div>
-
     </section>
-  )
-}
+  );
+};
 
-export default Services
+export default Services;
