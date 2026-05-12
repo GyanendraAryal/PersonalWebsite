@@ -24,7 +24,7 @@ const Navbar = () => {
         }`;
 
     return (
-        <nav className="w-full bg-slate-900 shadow-md fixed top-0 left-0 z-50">
+        <nav className="w-full bg-black shadow-md fixed top-0 left-0 z-50">
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
@@ -34,7 +34,7 @@ const Navbar = () => {
                     <Link to="/" >
                         <div className="text-xl sm:text-2xl font-bold tracking-wide text-white cursor-pointer">
                             <span className="text-white">Gyanendra</span>
-                            <span className="text-orange-500 text-3xl">..</span>
+                            <span className="text-orange-500 text-3xl">.</span>
                         </div></Link>
 
                     {/* Desktop Menu */}
@@ -92,7 +92,7 @@ const Navbar = () => {
 
             {/* Mobile Sidebar */}
             <div
-                className={`fixed top-0 right-0 h-screen w-[75%] sm:w-[50%] bg-blue-950 shadow-2xl z-50 transform transition-transform duration-500 ease-in-out md:hidden ${mobileView
+                className={`fixed top-0 right-0 h-screen w-[75%] sm:w-[50%] bg-black/50 shadow-2xl z-50 transform transition-transform duration-500 ease-in-out md:hidden ${mobileView
                     ? 'translate-x-0'
                     : 'translate-x-full'
                     }`}
