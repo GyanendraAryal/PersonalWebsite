@@ -14,7 +14,7 @@ import PageWrapper from './animate/PageWrapper'
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path='/' element={<App/>}>
-      <Route path='home' element={<Home/>}/>
+      <Route path='' element={<Home/>}/>
       <Route path='service' element={<Services/>}/>
       <Route path='work' element={<Work/>}/>
       <Route path='resume' element={<Resume/>}/>
