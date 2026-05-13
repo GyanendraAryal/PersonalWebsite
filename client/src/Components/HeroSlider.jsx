@@ -58,7 +58,7 @@ const HeroSlider = () => {
                 text-center lg:text-left
                 mt-8 lg:mt-0'>
 
-                        <p className='text-orange-400 
+                        <p className='text-white
                         text-xs sm:text-sm 
                         tracking-[3px] uppercase mb-4'>
 
