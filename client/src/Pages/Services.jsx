@@ -42,11 +42,11 @@ const services = [
 
 const Services = () => {
   return (
-    <section className="min-h-screen px-6 py-20">
+    <section className="min-h-screen bg-[#0f172a] px-6 py-20">
       <div className="max-w-6xl mx-auto">
 
         <h1 className="text-5xl font-bold mb-14 text-center">
-          My <span className="text-orange-500">Services</span>
+          <span className="text-orange-500">Services</span>
         </h1>
 
         <div className="grid md:grid-cols-3 gap-8">
