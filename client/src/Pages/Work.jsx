@@ -7,7 +7,7 @@ const Work = () => {
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const res = await fetch("/data.json");
+        const res = await fetch("/works.json");
         const data = await res.json();
         setProjects(data);
       } catch (error) {
@@ -20,15 +20,15 @@ const Work = () => {
 
   return (
     <section className="relative min-h-screen overflow-hidden bg-[#0f172a] px-4 py-20 sm:px-6 lg:px-8">
-      
+
       {/* Background Glow */}
       <div className="absolute top-0 left-1/2 h-[400px] w-[400px] -translate-x-1/2 rounded-full bg-orange-500/10 blur-3xl" />
 
       <div className="relative z-10 mx-auto max-w-7xl">
-        
+
         {/* Header */}
         <div className="mx-auto mb-16 max-w-2xl text-center">
-         
+
           <h1 className="mb-6 text-4xl font-extrabold leading-tight text-white sm:text-5xl lg:text-6xl">
             Featured{" "}
             <span className="bg-gradient-to-r from-orange-400 to-orange-600 bg-clip-text text-transparent">
@@ -44,13 +44,15 @@ const Work = () => {
 
         {/* Projects Grid */}
         <div
-          className="
-            grid
-            grid-cols-1
-            gap-6
-            sm:grid-cols-2
-            lg:grid-cols-3
-          "
+          className={`
+    grid gap-6 justify-items-center
+    ${projects.length === 1
+              ? "grid-cols-1"
+              : projects.length === 2
+                ? "grid-cols-1 sm:grid-cols-2"
+                : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+            }
+  `}
         >
           {projects.map((project, index) => (
             <div
