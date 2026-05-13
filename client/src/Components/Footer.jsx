@@ -24,18 +24,6 @@ const Footer = () => {
                             interactive UI systems, and scalable web experiences with clean architecture.
                         </p>
 
-                        {/* SMALL TECH STACK TAGS */}
-                        <div className="mt-5 flex flex-wrap gap-2 justify-center md:justify-start">
-                            {["React", "Tailwind", "Node.js", "MERN"].map((tech) => (
-                                <span
-                                    key={tech}
-                                    className="text-xs px-3 py-1 rounded-full bg-white/5 border border-slate-700 text-slate-300 transition-colors duration-1000 ease-in-out hover:bg-orange-400 hover:text-white"
-                                >
-                                    {tech}
-                                </span>
-                            ))}
-                        </div>
-
                     </div>
 
                     {/* RIGHT */}
