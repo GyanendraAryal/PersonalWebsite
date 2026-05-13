@@ -1,10 +1,30 @@
 [
   {
-    "projectName": "Portfolio",
-    "link": ""
+    "tag": "Full-Stack",
+    "title": "EyeExpress — Eyewear E-commerce",
+    "desc": "Customer-facing storefront with Redux auth, dynamic categories, and Khalti checkout.",
+    "tech": [
+      "React",
+      "Node.js",
+      "Express",
+      "MongoDB",
+      "Tailwind"
+    ],
+    "live": "https://eyeexpress.com",
+    "repo": "https://github.com/yourname/eyeexpress"
   },
   {
-    "projectName": "Trek",
-    "link": ""
+    "tag": "Full-Stack",
+    "title": "EyeExpress — Eyewear E-commerce",
+    "desc": "Customer-facing storefront with Redux auth, dynamic categories, and Khalti checkout.",
+    "tech": [
+      "React",
+      "Node.js",
+      "Express",
+      "MongoDB",
+      "Tailwind"
+    ],
+    "live": "https://eyeexpress.com",
+    "repo": "https://github.com/yourname/eyeexpress"
   }
 ]
