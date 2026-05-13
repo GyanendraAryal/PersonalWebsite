@@ -1,5 +1,23 @@
-import {ArrowRight} from 'lucide-react'
+import { ArrowRight } from 'lucide-react'
+import {
+  Monitor,
+  Code2,
+  Layers,
+  LayoutDashboard,
+  Plug,
+  Sparkles
+} from 'lucide-react'
+
+const iconMap = {
+  Monitor,
+  Code2,
+  Layers,
+  LayoutDashboard,
+  Plug,
+  Sparkles
+}
 const ServiceCard = ({ service }) => {
+  const Icon = iconMap[service.icon]
   return (
     <div className="group relative overflow-hidden
       bg-[#0f1624] border border-[#1e2740] rounded-2xl p-6
@@ -15,7 +33,7 @@ const ServiceCard = ({ service }) => {
       <div className="w-10 h-10 rounded-xl mb-5 flex items-center justify-center
         bg-orange-500/10 border border-orange-500/20
         group-hover:bg-orange-500/20 transition-colors duration-300">
-        <service.icon className="w-5 h-5 text-orange-400" />
+        <Icon className="w-5 h-5 text-orange-400" />
       </div>
 
       {/* Category tag */}
