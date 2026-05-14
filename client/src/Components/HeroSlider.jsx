@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import HeroImg from '../assets/heroImg.png'
-import HeroImg1 from '../assets/heroImg1.png'
+import axios from 'axios'
 import { Link } from 'react-router-dom'
 import useTypingAnimation from '../Hooks/useTypingAnimation'
 
@@ -15,23 +14,18 @@ const words = [
 
 const HeroSlider = () => {
 
-    const [index, setIndex] = useState(0)
-
-    const images = [HeroImg, HeroImg1]
+    const [hero, setHero] = useState(null)
 
     useEffect(() => {
 
-        const interval = setInterval(() => {
-
-            setIndex((prevIndex) => {
-                return prevIndex === images.length - 1
-                    ? 0
-                    : prevIndex + 1
+        axios.get("http://127.0.0.1:8000/api/hero/")
+            .then((res) => {
+                console.log(res.data);
+                setHero(res.data[0])
             })
-
-        }, 5000)
-
-        return () => clearInterval(interval)
+            .catch((err) => {
+                console.log(err);
+            })
 
     }, [])
 
@@ -116,18 +110,30 @@ const HeroSlider = () => {
                     </div>
 
                     {/* RIGHT IMAGE */}
+                    {/* RIGHT IMAGE */}
                     <div className='w-full lg:w-1/2
-                flex justify-center items-center
-                relative'>
+flex justify-center items-center
+relative'>
 
-                        <img
-                            key={index}
-                            className='w-full max-w-[700px] object-contain
-    drop-shadow-[0_20px_60px_rgba(0,0,0,0.8)]
-    animate-fadeIn'
-                            src={images[index]}
-                            alt={`hero slide ${index + 1}`}
-                        />
+                        {hero ? (
+
+                            <img
+                                className='w-full max-w-[700px] object-contain
+            drop-shadow-[0_20px_60px_rgba(0,0,0,0.8)]
+            animate-fadeIn'
+                                src={hero.image}
+                                alt='Hero'
+                            />
+
+                        ) : (
+
+                            <div className='text-white'>
+
+                                Loading...
+
+                            </div>
+
+                        )}
 
                     </div>
 
