@@ -4,16 +4,24 @@ Django settings for config project.
 
 from pathlib import Path
 
+from decouple import config
+
+import cloudinary
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 # SECURITY
 
-SECRET_KEY = 'django-insecure-fncq63(@siwt!$(lz%dafq0(6ly5$u+*47bu1!)6ku%k3rpgzb'
+SECRET_KEY = config('SECRET_KEY')
 
-DEBUG = True
+DEBUG = config('DEBUG', cast=bool, default=False)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = config(
+    'ALLOWED_HOSTS',
+    cast=lambda v: [s.strip() for s in v.split(',')],
+    default='127.0.0.1,localhost'
+)
 
 
 # APPLICATIONS
@@ -59,6 +67,7 @@ MIDDLEWARE = [
 ]
 
 
+
 # CORS
 
 CORS_ALLOWED_ORIGINS = [
@@ -69,10 +78,41 @@ CORS_ALLOWED_ORIGINS = [
 # CLOUDINARY
 
 CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': 'dq3hesvyp',
-    'API_KEY': '954123249716632',
-    'API_SECRET': 'n3j1_n1-olFbE6ohoDB_9n6fLjk',
+    'CLOUD_NAME': config('CLOUDINARY_CLOUD_NAME'),
+    'API_KEY': config('CLOUDINARY_API_KEY'),
+    'API_SECRET':config('CLOUDINARY_API_SECRET'),
 }
+
+cloudinary.config(
+    cloud_name=config('CLOUDINARY_CLOUD_NAME'),
+    api_key=config('CLOUDINARY_API_KEY'),
+    api_secret=config('CLOUDINARY_API_SECRET'),
+)
+
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',
+    ],
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '20/minute',
+    },
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+    ],
+}
+
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+X_FRAME_OPTIONS = 'DENY'
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://yourfrontend.com'
+]
+
 
 
 # DJANGO 6 STORAGE CONFIG
@@ -118,10 +158,20 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 # DATABASE
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': config('DB_NAME'),
+#         'USER': config('DB_USER'),
+#         'PASSWORD': config('DB_PASSWORD'),
+#         'HOST': config('DB_HOST'),
+#         'PORT': config('DB_PORT', cast=int),
+#     }
+# }
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
@@ -161,7 +211,8 @@ USE_TZ = True
 
 # STATIC FILES
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 
 # DEFAULT AUTO FIELD

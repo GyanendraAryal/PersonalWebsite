@@ -1,5 +1,14 @@
+from rest_framework.views import APIView
+from rest_framework.response import Response
 from rest_framework import generics
-from .models import Hero, Resume, Contact
+from rest_framework.throttling import AnonRateThrottle
+
+from .models import (
+    Hero,
+    Resume,
+    Contact
+)
+
 from .serializers import (
     HeroSerializer,
     ResumeSerializer,
@@ -7,16 +16,36 @@ from .serializers import (
 )
 
 
-class HeroView(generics.ListAPIView):
-    queryset = Hero.objects.all()
-    serializer_class = HeroSerializer
+class ContactThrottle(AnonRateThrottle):
+    rate = '5/hour'
 
 
-class ResumeView(generics.ListAPIView):
-    queryset = Resume.objects.all()
-    serializer_class = ResumeSerializer
+class HeroView(APIView):
+
+    def get(self, request):
+
+        hero = Hero.get_solo()
+
+        serializer = HeroSerializer(hero)
+
+        return Response(serializer.data)
+
+
+class ResumeView(APIView):
+
+    def get(self, request):
+
+        resume = Resume.get_solo()
+
+        serializer = ResumeSerializer(resume)
+
+        return Response(serializer.data)
 
 
 class ContactCreateView(generics.CreateAPIView):
+
     queryset = Contact.objects.all()
+
     serializer_class = ContactSerializer
+
+    throttle_classes = [ContactThrottle]
