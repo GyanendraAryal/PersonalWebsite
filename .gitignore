@@ -2,4 +2,6 @@ node_modules
 .env
 hero.png
 bg-web.png
-.DS_Store
+.DS_Store__pycache__/
+*.pyc
+db.sqlite3
