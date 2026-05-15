@@ -3,7 +3,6 @@ import axios from 'axios'
 import { Link } from 'react-router-dom'
 import useTypingAnimation from '../Hooks/useTypingAnimation'
 
-
 const words = [
     "Modern Web Experiences.",
     "Scalable MERN Apps.",
@@ -11,23 +10,44 @@ const words = [
     "Real-World Products."
 ];
 
-
 const HeroSlider = () => {
-
-    const [hero, setHero] = useState(null)
+    // 1. Initialized safely as an empty array to prevent undefined length readings
+    const [hero, setHero] = useState([])
+    const [currentIndex, setCurrentIndex] = useState(0)
 
     useEffect(() => {
+        const fetchHeroData = async () => {
+            try {
+                const response = await axios.get('http://127.0.0.1:8000/api/hero/') // Replace with your exact endpoint
 
-        axios.get("http://127.0.0.1:8000/api/hero/")
-            .then((res) => {
-                console.log(res.data);
-                setHero(res.data[0])
-            })
-            .catch((err) => {
-                console.log(err);
-            })
+                // 2. Safely handles raw array responses or nested object payload data
+                const fetchedData = response.data;
+                const validatedData = Array.isArray(fetchedData)
+                    ? fetchedData
+                    : (fetchedData?.data || fetchedData?.heroes || []);
 
+                setHero(validatedData);
+            } catch (error) {
+                console.error("Error fetching hero data:", error)
+            }
+        }
+        fetchHeroData()
     }, [])
+
+    useEffect(() => {
+        // 3. Block loop configuration if data has not resolved yet
+        if (hero.length === 0) return
+
+        const interval = setInterval(() => {
+            setCurrentIndex((prevIndex) =>
+                prevIndex === hero.length - 1
+                    ? 0
+                    : prevIndex + 1
+            )
+        }, 3000)
+
+        return () => clearInterval(interval)
+    }, [hero]) // Fixed tracking array dependency
 
     const typed = useTypingAnimation(words, {
         typingSpeed: 80,
@@ -35,47 +55,40 @@ const HeroSlider = () => {
         pauseDelay: 2000
     });
 
-
     return (
         <>
             <div className='min-h-screen w-full bg-black overflow-hidden'>
-
                 <div className='max-w-7xl mx-auto
-    flex flex-col-reverse lg:flex-row
-    items-center justify-between
-    px-4 sm:px-6 lg:px-8
-    py-20'>
+                    flex flex-col-reverse lg:flex-row
+                    items-center justify-between
+                    px-4 sm:px-6 lg:px-8
+                    py-20'>
 
                     {/* LEFT CONTENT */}
                     <div className='w-full lg:w-1/2 
-                flex flex-col justify-center
-                text-center lg:text-left
-                mt-8 lg:mt-0'>
+                        flex flex-col justify-center
+                        text-center lg:text-left
+                        mt-8 lg:mt-0'>
 
                         <p className='text-white
-                        text-xs sm:text-sm 
-                        tracking-[3px] uppercase mb-4'>
-
+                            text-xs sm:text-sm 
+                            tracking-[3px] uppercase mb-4'>
                             Full Stack Developer • React • Node.js
-
                         </p>
 
                         <h1 className='text-white 
-    text-4xl sm:text-5xl md:text-6xl lg:text-7xl 
-    font-bold leading-tight'>
-
+                            text-4xl sm:text-5xl md:text-6xl lg:text-7xl 
+                            font-bold leading-tight'>
                             Building{" "}
                             <span className="text-orange-500">
                                 {typed}<span className="animate-pulse">|</span>
                             </span>
-
                         </h1>
 
-
                         <p className='text-gray-400 
-              text-sm sm:text-base md:text-lg
-              mt-5 leading-7 max-w-xl
-              mx-auto lg:mx-0'>
+                            text-sm sm:text-base md:text-lg
+                            mt-5 leading-7 max-w-xl
+                            mx-auto lg:mx-0'>
                             I craft{' '}
                             <span className='text-white font-medium'>fast, scalable web apps</span>
                             {' '}with{' '}
@@ -87,54 +100,39 @@ const HeroSlider = () => {
 
                         {/* BUTTONS */}
                         <div className='flex flex-col sm:flex-row
-                    gap-4 mt-8
-                    justify-center lg:justify-start'>
-
+                            gap-4 mt-8
+                            justify-center lg:justify-start'>
                             <Link
                                 to='/work'
                                 className='bg-white text-black px-6 py-3 rounded-lg
-    font-semibold hover:bg-orange-400 hover:text-white
-    transition-all duration-300'>
+                                    font-semibold hover:bg-orange-400 hover:text-white
+                                    transition-all duration-300'>
                                 View Projects
                             </Link>
 
                             <Link
                                 to='/contact'
                                 className='border border-gray-700 text-white px-6 py-3 rounded-lg
-    hover:text-orange-400 transition-all duration-300'>
+                                    hover:text-orange-400 transition-all duration-300'>
                                 Contact
                             </Link>
-
                         </div>
-
                     </div>
 
                     {/* RIGHT IMAGE */}
-                    {/* RIGHT IMAGE */}
-                    <div className='w-full lg:w-1/2
-flex justify-center items-center
-relative'>
-
-                        {hero ? (
-
+                    <div className='w-full lg:w-1/2 flex justify-center items-center relative'>
+                        {hero.length > 0 ? (
                             <img
-                                className='w-full max-w-[700px] object-contain
-            drop-shadow-[0_20px_60px_rgba(0,0,0,0.8)]
-            animate-fadeIn'
-                                src={hero.image}
-                                alt='Hero'
+                                key={currentIndex} // 4. Forces animate-fadeIn to trigger every time slide index updates
+                                className='w-full max-w-[700px] object-contain drop-shadow-[0_20px_60px_rgba(0,0,0,0.8)] animate-fadeIn'
+                                src={hero[currentIndex]?.image}
+                                alt='Hero Visual Showcase'
                             />
-
                         ) : (
-
-                            <div className='text-white'>
-
-                                Loading...
-
+                            <div className='text-white font-medium tracking-wide animate-pulse'>
+                                Loading Asset Stream...
                             </div>
-
                         )}
-
                     </div>
 
                 </div>
