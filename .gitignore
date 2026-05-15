@@ -5,3 +5,4 @@ bg-web.png
 .DS_Store__pycache__/
 *.pyc
 db.sqlite3
+.DS_Store
