@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
-import axios from 'axios'
 import { Link } from 'react-router-dom'
 import useTypingAnimation from '../Hooks/useTypingAnimation'
+import { getImages } from '../api'
 
 const words = [
     "Modern Web Experiences.",
@@ -18,17 +18,10 @@ const HeroSlider = () => {
     useEffect(() => {
         const fetchHeroData = async () => {
             try {
-                const response = await axios.get('http://127.0.0.1:8000/api/hero/') // Replace with your exact endpoint
-
-                // 2. Safely handles raw array responses or nested object payload data
-                const fetchedData = response.data;
-                const validatedData = Array.isArray(fetchedData)
-                    ? fetchedData
-                    : (fetchedData?.data || fetchedData?.heroes || []);
-
-                setHero(validatedData);
+                const res = await getImages('hero')
+                setHero(Array.isArray(res.data) ? res.data : [])
             } catch (error) {
-                console.error("Error fetching hero data:", error)
+                console.error("Error fetching hero images:", error)
             }
         }
         fetchHeroData()
@@ -125,7 +118,7 @@ const HeroSlider = () => {
                             <img
                                 key={currentIndex} // 4. Forces animate-fadeIn to trigger every time slide index updates
                                 className='w-full max-w-[700px] object-contain drop-shadow-[0_20px_60px_rgba(0,0,0,0.8)] animate-fadeIn'
-                                src={hero[currentIndex]?.image}
+                                src={hero[currentIndex]?.image_url}
                                 alt='Hero Visual Showcase'
                             />
                         ) : (

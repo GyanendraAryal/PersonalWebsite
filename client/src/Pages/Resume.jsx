@@ -1,4 +1,14 @@
+import { useEffect, useState } from 'react'
+import { getActiveResume } from '../api'
+
 const Resume = () => {
+  const [resumeUrl, setResumeUrl] = useState('/Resume.pdf')
+
+  useEffect(() => {
+    getActiveResume()
+      .then((res) => { if (res.data?.file_url) setResumeUrl(res.data.file_url) })
+      .catch(() => {})
+  }, [])
 
   const skills = [
     'JavaScript (ES6+)',
@@ -127,8 +137,10 @@ const Resume = () => {
               </p>
 
               <a
-                href="/Resume.pdf"
+                href={resumeUrl}
                 download
+                target="_blank"
+                rel="noopener noreferrer"
                 className="inline-flex items-center justify-center w-full bg-orange-500 hover:bg-orange-600 transition px-6 py-4 rounded-xl font-medium"
               >
                 Download CV
