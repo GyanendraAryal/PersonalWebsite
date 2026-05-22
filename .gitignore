@@ -6,3 +6,7 @@ bg-web.png
 *.pyc
 db.sqlite3
 .DS_Store
+backend/venv/
+backend/.env
+client/.env
+*.env
