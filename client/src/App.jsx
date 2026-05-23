@@ -1,16 +1,13 @@
-import { Outlet } from 'react-router-dom';
-import Navbar from './Components/Navbar';
-import Footer from './Components/Footer';
-import HeroSlider from './Components/HeroSlider';
-import Home from './Pages/Home';
-import Work from './Pages/Work'
+import { Outlet } from 'react-router-dom'
+import Navbar from './Components/Navbar'
+import Footer from './Components/Footer'
 
 function App() {
   return (
     <>
       <Navbar />
       <Outlet />
-      <Footer/>
+      <Footer />
     </>
   )
 }
