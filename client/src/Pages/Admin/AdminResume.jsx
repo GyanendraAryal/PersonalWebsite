@@ -9,19 +9,22 @@ const AdminResume = () => {
   const [title, setTitle] = useState('')
   const fileRef = useRef()
 
-  const load = async () => {
-    setLoading(true)
-    try {
-      const res = await getActiveResume()
-      setResume(res.data?.id ? res.data : null)
-    } catch {
-      setError('Failed to load resume.')
-    } finally {
-      setLoading(false)
+  useEffect(() => {
+    let cancelled = false
+    const fetchResume = async () => {
+      setLoading(true)
+      try {
+        const res = await getActiveResume()
+        if (!cancelled) setResume(res.data?.id ? res.data : null)
+      } catch {
+        if (!cancelled) setError('Failed to load resume.')
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
     }
-  }
-
-  useEffect(() => { load() }, [])
+    fetchResume()
+    return () => { cancelled = true }
+  }, [])
 
   const handleUpload = async (e) => {
     e.preventDefault()
@@ -81,26 +84,16 @@ const AdminResume = () => {
               </p>
             </div>
             <div className="flex gap-3">
-              <a
-                href={resume.file_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-orange-500 hover:bg-orange-600 px-5 py-2 rounded-xl text-sm font-medium transition"
-              >
+              <a href={resume.file_url} target="_blank" rel="noopener noreferrer"
+                className="bg-orange-500 hover:bg-orange-600 px-5 py-2 rounded-xl text-sm font-medium transition">
                 View PDF
               </a>
-              <a
-                href={resume.file_url}
-                download
-                className="bg-slate-800 hover:bg-slate-700 px-5 py-2 rounded-xl text-sm transition"
-              >
+              <a href={resume.file_url} download
+                className="bg-slate-800 hover:bg-slate-700 px-5 py-2 rounded-xl text-sm transition">
                 Download
               </a>
-              <button
-                onClick={handleDelete}
-                disabled={loading}
-                className="bg-red-500/10 hover:bg-red-500/20 text-red-400 px-5 py-2 rounded-xl text-sm transition disabled:opacity-50"
-              >
+              <button onClick={handleDelete} disabled={loading}
+                className="bg-red-500/10 hover:bg-red-500/20 text-red-400 px-5 py-2 rounded-xl text-sm transition disabled:opacity-50">
                 Delete
               </button>
             </div>
@@ -121,27 +114,16 @@ const AdminResume = () => {
           </p>
         )}
         <div className="grid sm:grid-cols-2 gap-4">
-          <input
-            type="text"
-            placeholder="Title (optional)"
-            value={title}
+          <input type="text" placeholder="Title (optional)" value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="bg-slate-800 border border-slate-700 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-orange-500"
-          />
-          <input
-            ref={fileRef}
-            type="file"
-            accept=".pdf"
-            className="bg-slate-800 border border-slate-700 rounded-xl px-4 py-2 text-sm file:mr-3 file:bg-orange-500 file:border-0 file:text-white file:rounded-lg file:px-3 file:py-1 file:cursor-pointer"
-          />
+            className="bg-slate-800 border border-slate-700 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-orange-500" />
+          <input ref={fileRef} type="file" accept=".pdf"
+            className="bg-slate-800 border border-slate-700 rounded-xl px-4 py-2 text-sm file:mr-3 file:bg-orange-500 file:border-0 file:text-white file:rounded-lg file:px-3 file:py-1 file:cursor-pointer" />
         </div>
         {error && <p className="text-red-400 text-sm">{error}</p>}
         {success && <p className="text-green-400 text-sm">{success}</p>}
-        <button
-          type="submit"
-          disabled={loading}
-          className="bg-orange-500 hover:bg-orange-600 disabled:opacity-50 px-6 py-2 rounded-xl text-sm font-medium transition"
-        >
+        <button type="submit" disabled={loading}
+          className="bg-orange-500 hover:bg-orange-600 disabled:opacity-50 px-6 py-2 rounded-xl text-sm font-medium transition">
           {loading ? 'Uploading…' : 'Upload PDF'}
         </button>
       </form>
