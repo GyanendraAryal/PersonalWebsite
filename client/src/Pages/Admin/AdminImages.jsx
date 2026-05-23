@@ -13,20 +13,23 @@ const AdminImages = () => {
   const fileRef = useRef()
   const [form, setForm] = useState({ title: '', category: 'other' })
 
-  const load = async () => {
-    setLoading(true)
-    setError('')
-    try {
-      const res = await getImages(filter || undefined)
-      setImages(res.data)
-    } catch {
-      setError('Failed to load images.')
-    } finally {
-      setLoading(false)
+  useEffect(() => {
+    let cancelled = false
+    const fetchImages = async () => {
+      setLoading(true)
+      setError('')
+      try {
+        const res = await getImages(filter || undefined)
+        if (!cancelled) setImages(res.data)
+      } catch {
+        if (!cancelled) setError('Failed to load images.')
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
     }
-  }
-
-  useEffect(() => { load() }, [filter])
+    fetchImages()
+    return () => { cancelled = true }
+  }, [filter])
 
   const handleUpload = async (e) => {
     e.preventDefault()
@@ -100,9 +103,7 @@ const AdminImages = () => {
             onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))}
             className="bg-slate-800 border border-slate-700 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-orange-500"
           >
-            {CATEGORIES.map((c) => (
-              <option key={c} value={c}>{c}</option>
-            ))}
+            {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
           </select>
           <input
             ref={fileRef}
@@ -111,29 +112,21 @@ const AdminImages = () => {
             className="bg-slate-800 border border-slate-700 rounded-xl px-4 py-2 text-sm file:mr-3 file:bg-orange-500 file:border-0 file:text-white file:rounded-lg file:px-3 file:py-1 file:cursor-pointer"
           />
         </div>
-        <button
-          type="submit"
-          disabled={loading}
-          className="bg-orange-500 hover:bg-orange-600 disabled:opacity-50 px-6 py-2 rounded-xl text-sm font-medium transition"
-        >
+        <button type="submit" disabled={loading}
+          className="bg-orange-500 hover:bg-orange-600 disabled:opacity-50 px-6 py-2 rounded-xl text-sm font-medium transition">
           {loading ? 'Uploading…' : 'Upload'}
         </button>
       </form>
 
       {/* Filter */}
       <div className="flex gap-2 mb-6 flex-wrap">
-        <button
-          onClick={() => setFilter('')}
-          className={`px-4 py-1.5 rounded-xl text-sm transition ${!filter ? 'bg-orange-500' : 'bg-slate-800 hover:bg-slate-700'}`}
-        >
+        <button onClick={() => setFilter('')}
+          className={`px-4 py-1.5 rounded-xl text-sm transition ${!filter ? 'bg-orange-500' : 'bg-slate-800 hover:bg-slate-700'}`}>
           All
         </button>
         {CATEGORIES.map((c) => (
-          <button
-            key={c}
-            onClick={() => setFilter(c)}
-            className={`px-4 py-1.5 rounded-xl text-sm transition ${filter === c ? 'bg-orange-500' : 'bg-slate-800 hover:bg-slate-700'}`}
-          >
+          <button key={c} onClick={() => setFilter(c)}
+            className={`px-4 py-1.5 rounded-xl text-sm transition ${filter === c ? 'bg-orange-500' : 'bg-slate-800 hover:bg-slate-700'}`}>
             {c}
           </button>
         ))}
@@ -150,16 +143,12 @@ const AdminImages = () => {
             <div className="p-4 space-y-3">
               {editId === img.id ? (
                 <>
-                  <input
-                    value={editData.title}
+                  <input value={editData.title}
                     onChange={(e) => setEditData((d) => ({ ...d, title: e.target.value }))}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-orange-500"
-                  />
-                  <select
-                    value={editData.category}
+                    className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-orange-500" />
+                  <select value={editData.category}
                     onChange={(e) => setEditData((d) => ({ ...d, category: e.target.value }))}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-orange-500"
-                  >
+                    className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-orange-500">
                     {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
                   </select>
                   <div className="flex gap-2">
@@ -172,18 +161,10 @@ const AdminImages = () => {
                   <p className="font-medium text-sm truncate">{img.title}</p>
                   <span className="text-xs bg-orange-500/10 border border-orange-500/20 text-orange-400 px-2 py-0.5 rounded-lg">{img.category}</span>
                   <div className="flex gap-2 pt-1">
-                    <button
-                      onClick={() => { setEditId(img.id); setEditData({ title: img.title, category: img.category }) }}
-                      className="flex-1 bg-slate-800 hover:bg-slate-700 rounded-lg py-1.5 text-sm transition"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(img.id)}
-                      className="flex-1 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg py-1.5 text-sm transition"
-                    >
-                      Delete
-                    </button>
+                    <button onClick={() => { setEditId(img.id); setEditData({ title: img.title, category: img.category }) }}
+                      className="flex-1 bg-slate-800 hover:bg-slate-700 rounded-lg py-1.5 text-sm transition">Edit</button>
+                    <button onClick={() => handleDelete(img.id)}
+                      className="flex-1 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg py-1.5 text-sm transition">Delete</button>
                   </div>
                 </>
               )}
