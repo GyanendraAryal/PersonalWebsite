@@ -1,12 +1,47 @@
-node_modules
-.env
-hero.png
-bg-web.png
-.DS_Store__pycache__/
+# Python
+__pycache__/
 *.pyc
-db.sqlite3
-.DS_Store
+*.pyo
+*.pyd
+*.egg-info/
+.eggs/
+dist/
+build/
+
+
+# Virtual environments
+venv/
+.venv/
+env/
 backend/venv/
+.env
+*.env
+backend/.env
+
+# Django
+db.sqlite3
+backend/db.sqlite3
+*.sqlite3
+staticfiles/
+backend/staticfiles/
+
+# Environment files — never commit real secrets
+.env
+*.env
 backend/.env
 client/.env
-*.env
+
+# macOS
+.DS_Store
+**/.DS_Store
+
+# Node
+node_modules/
+client/node_modules/
+
+# Vite build output
+client/dist/
+
+# Misc
+hero.png
+bg-web.png
