@@ -11,8 +11,8 @@ gunicorn==23.0.0
 idna==3.16
 packaging==26.2
 pillow==11.2.1
-psycopg==3.2.6
-psycopg-binary==3.2.6
+psycopg==3.3.4
+psycopg-binary==3.3.4
 python-decouple==3.8
 requests==2.34.2
 six==1.17.0
