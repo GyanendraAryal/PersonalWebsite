@@ -11,6 +11,7 @@ DEBUG = config("DEBUG", default="False", cast=bool)
 # ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv(), default='127.0.0.1,localhost,portfolio-backend-yima.onrender.com')
 ALLOWED_HOSTS = ["*"]
 INSTALLED_APPS = [
+    "unfold",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -88,7 +89,7 @@ ROOT_URLCONF = "config.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -131,6 +132,63 @@ USE_TZ = True
 # ── STATIC ────────────────────────────────────────────────────────────────────
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
+UNFOLD = {
+    "SITE_TITLE": "Portfolio CMS",
+    "SITE_HEADER": "Portfolio Dashboard",
+    "SITE_SYMBOL": "dashboard",
+
+    "SHOW_HISTORY": True,
+    "SHOW_VIEW_ON_SITE": True,
+
+    "THEME": "dark",
+
+    "COLORS": {
+        "primary": {
+            "50": "240 249 255",
+            "100": "224 242 254",
+            "200": "186 230 253",
+            "300": "125 211 252",
+            "400": "56 189 248",
+            "500": "14 165 233",
+            "600": "2 132 199",
+            "700": "3 105 161",
+            "800": "7 89 133",
+            "900": "12 74 110",
+        },
+    },
+
+    "SIDEBAR": {
+        "show_search": True,
+        "show_all_applications": False,
+        "navigation": [
+            {
+                "title": "Content",
+                "items": [
+                    {
+                        "title": "Portfolio Images",
+                        "icon": "image",
+                        "link": "/admin/portfolio/portfolioimage/",
+                    },
+                    {
+                        "title": "Resumes",
+                        "icon": "description",
+                        "link": "/admin/portfolio/resume/",
+                    },
+                ],
+            },
+            {
+                "title": "Communication",
+                "items": [
+                    {
+                        "title": "Contacts",
+                        "icon": "mail",
+                        "link": "/admin/portfolio/contact/",
+                    },
+                ],
+            },
+        ],
+    },
+}
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
