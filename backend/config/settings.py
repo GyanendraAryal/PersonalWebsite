@@ -30,8 +30,8 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -42,19 +42,17 @@ MIDDLEWARE = [
 ]
 
 # ── CORS ──────────────────────────────────────────────────────────────────────
-CORS_ALLOWED_ORIGINS = config(
-    "CORS_ALLOWED_ORIGINS",
-    cast=lambda v: [s.strip() for s in v.split(",")],
-    default="http://localhost:5173",
-)
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+    "https://personal-website-nu-eight-22.vercel.app",
+]
 CORS_ALLOW_CREDENTIALS = True
 
 # ── CSRF ──────────────────────────────────────────────────────────────────────
-CSRF_TRUSTED_ORIGINS = config(
-    "CSRF_TRUSTED_ORIGINS",
-    cast=lambda v: [s.strip() for s in v.split(",")],
-    default="http://localhost:5173",
-)
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:5173",
+    "https://personal-website-nu-eight-22.vercel.app",
+]
 
 # ── CLOUDINARY ────────────────────────────────────────────────────────────────
 CLOUDINARY_STORAGE = {
