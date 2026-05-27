@@ -6,6 +6,7 @@ dj-database-url==2.3.0
 Django==5.2.1
 django-cloudinary-storage==0.3.0
 django-cors-headers==4.7.0
+django-unfold==0.94.0
 djangorestframework==3.16.0
 gunicorn==23.0.0
 idna==3.16
