@@ -9,7 +9,7 @@ const Contact = () => {
   const contactInfo = [
     { title: 'Email', value: 'aryalgyanendra8@gmail.com' },
     { title: 'Location', value: 'Bhairahawa, Nepal' },
-    { title: 'Role', value: 'Full Stack MERN Developer' },
+    { title: 'Role', value: 'Full Stack MERN/Django Developer' },
   ]
 
   const handleChange = (e) => {

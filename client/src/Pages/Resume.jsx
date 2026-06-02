@@ -6,230 +6,102 @@ const Resume = () => {
 
   useEffect(() => {
     getActiveResume()
-      .then((res) => { if (res.data?.file_url) setResumeUrl(res.data.file_url) })
+      .then((res) => {
+        if (res.data?.file_url) setResumeUrl(res.data.file_url)
+      })
       .catch(() => {})
   }, [])
 
   const skills = [
-    'JavaScript (ES6+)',
-    'React',
-    'Node.js',
-    'Express.js',
-    'MongoDB',
-    'Redux Toolkit',
-    'Tailwind CSS',
-    'JWT Authentication',
-    'REST APIs',
-    'Docker',
-    'Git & GitHub',
-    'Postman',
-    'Cloudinary',
-    'eSewa/Khalti Integration',
+    'JavaScript', 'React', 'Node.js', 'Express',
+    'MongoDB', 'Tailwind CSS', 'JWT Auth',
+    'REST APIs', 'Cloudinary', 'Git'
   ]
 
   const projects = [
     {
       title: 'EyeExpress',
-      subtitle: 'Eyewear E-Commerce Platform',
-      description:
-        'Built a full-stack MERN eyewear platform with customer storefront, admin dashboard, Redux auth flow, payment integration, analytics dashboard, and responsive UI.',
+      desc: 'Full-stack eyewear e-commerce with admin dashboard and payments.'
     },
-
     {
       title: 'CashYourPhone',
-      subtitle: 'Used Phone Marketplace',
-      description:
-        'Developed a marketplace platform with secure JWT authentication, eSewa ePay V2 integration, Cloudinary image hosting, and role-based access control.',
+      desc: 'Used phone marketplace with authentication and image uploads.'
     },
-
     {
       title: 'AirPlus',
-      subtitle: 'Travel & Trekking Platform',
-      description:
-        'Created a travel and trekking platform with admin dashboard, booking management, REST APIs, and modular MongoDB architecture.',
-    },
+      desc: 'Travel & trekking platform with booking and admin system.'
+    }
   ]
 
   return (
-    <section className="min-h-screen px-6 py-20 bg-slate-950 text-white">
+    <section className="min-h-screen bg-slate-950 text-white px-6 py-20">
 
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-4xl mx-auto space-y-16">
 
-        {/* Heading */}
-
-        <div className="text-center mb-16">
-          <h1 className="text-5xl md:text-6xl font-bold leading-tight">
-            Full Stack MERN <br />
-            <span className="text-orange-500">
-              Developer
-            </span>
+        {/* Header */}
+        <div className="text-center space-y-4">
+          <h1 className="text-4xl md:text-5xl font-bold">
+            Full Stack <span className="text-orange-500">MERN Developer</span>
           </h1>
 
-          <p className="text-white mt-6 max-w-2xl mx-auto leading-relaxed">
-            Backend-oriented MERN developer focused on scalable REST APIs,
-            secure authentication systems, MongoDB architecture, and modern
-            React applications.
+          <p className="text-slate-400 max-w-2xl mx-auto">
+            Backend-focused developer building scalable APIs, secure auth systems,
+            and modern React applications with clean architecture.
           </p>
 
+          <a
+            href={resumeUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block mt-4 bg-orange-500 hover:bg-orange-600 px-6 py-3 rounded-xl font-medium transition"
+          >
+            Download CV
+          </a>
         </div>
 
-        {/* Main Resume Card */}
+        {/* Skills */}
+        <div>
+          <h2 className="text-xl font-semibold mb-4 text-orange-500">
+            Skills
+          </h2>
 
-        <div className="grid lg:grid-cols-3 gap-8">
-
-          {/* Left Side */}
-
-          <div className="lg:col-span-1 space-y-8">
-
-            {/* Education */}
-
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8">
-
-              <h2 className="text-2xl font-semibold mb-6 text-orange-500">
-                Education
-              </h2>
-
-              <div className="space-y-5">
-
-                <div>
-                  <h3 className="font-semibold text-lg">
-                    Bachelor of Computer Applications
-                  </h3>
-
-                  <p className="text-slate-400">
-                    Tribhuvan University
-                  </p>
-
-                  <p className="text-slate-500 text-sm mt-1">
-                    Currently Pursuing
-                  </p>
-                </div>
-
-                <div>
-                  <h3 className="font-semibold text-lg">
-                    +2 ISC (AG)
-                  </h3>
-
-                  <p className="text-slate-400">
-                    Shree Nawaratna Secondary School
-                  </p>
-
-                  <p className="text-slate-500 text-sm mt-1">
-                    GPA: 3.26
-                  </p>
-                </div>
-
-              </div>
-
-            </div>
-
-            {/* Download Button */}
-
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8">
-
-              <h2 className="text-2xl font-semibold mb-5 text-orange-500">
-                Resume PDF
-              </h2>
-
-              <p className="text-slate-400 mb-6">
-                Download my complete resume with projects,
-                technical skills, and experience.
-              </p>
-
-              <a
-                href={resumeUrl}
-                download
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center w-full bg-orange-500 hover:bg-orange-600 transition px-6 py-4 rounded-xl font-medium"
+          <div className="flex flex-wrap gap-2">
+            {skills.map((skill) => (
+              <span
+                key={skill}
+                className="px-3 py-1 text-sm rounded-full border border-slate-700 bg-slate-900 text-slate-300"
               >
-                Download CV
-              </a>
-
-            </div>
-
+                {skill}
+              </span>
+            ))}
           </div>
+        </div>
 
-          {/* Right Side */}
+        {/* Projects */}
+        <div>
+          <h2 className="text-xl font-semibold mb-6 text-orange-500">
+            Projects
+          </h2>
 
-          <div className="lg:col-span-2 space-y-8">
-
-            {/* Skills */}
-
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8">
-
-              <h2 className="text-2xl font-semibold mb-6 text-white">
-                Technical Skills
-              </h2>
-
-              <div className="flex flex-wrap gap-3">
-
-                {skills.map((skill) => (
-
-                  <span
-                    key={skill}
-                    className="bg-orange-500/10 border border-orange-500/20 text-white px-4 py-2 rounded-xl text-sm hover:bg-orange-500 transition"
-                  >
-                    {skill}
-                  </span>
-
-                ))}
-
+          <div className="space-y-5">
+            {projects.map((p) => (
+              <div
+                key={p.title}
+                className="p-5 rounded-xl border border-slate-800 bg-slate-900 hover:border-orange-500 transition"
+              >
+                <h3 className="text-lg font-semibold">{p.title}</h3>
+                <p className="text-slate-400 text-sm mt-1">{p.desc}</p>
               </div>
-
-            </div>
-
-            {/* Projects */}
-
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8">
-
-              <h2 className="text-2xl font-semibold mb-8 text-orange-500">
-                Key Projects
-              </h2>
-
-              <div className="space-y-8">
-
-                {projects.map((project) => (
-
-                  <div
-                    key={project.title}
-                    className="border-b border-slate-800 pb-8 last:border-none last:pb-0"
-                  >
-
-                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-3">
-
-                      <h3 className="text-2xl font-bold">
-                        {project.title}
-                      </h3>
-
-                      <span className="text-orange-400 text-sm">
-                        2024 — Present
-                      </span>
-
-                    </div>
-
-                    <p className="text-slate-400 font-medium mb-3">
-                      {project.subtitle}
-                    </p>
-
-                    <p className="text-slate-300 leading-relaxed">
-                      {project.description}
-                    </p>
-
-                  </div>
-
-                ))}
-
-              </div>
-
-            </div>
-
+            ))}
           </div>
+        </div>
 
+        {/* Footer line */}
+        <div className="text-center text-slate-600 text-sm">
+          Built with React + Tailwind CSS
         </div>
 
       </div>
-
     </section>
   )
 }
