@@ -12,9 +12,13 @@ const Services = lazy(() => import('./Pages/Services'))
 const Work = lazy(() => import('./Pages/Work'))
 const Resume = lazy(() => import('./Pages/Resume'))
 const Contact = lazy(() => import('./Pages/Contact'))
-const AdminLayout = lazy(() => import('./Pages/Admin/AdminLayout'))
-const AdminImages = lazy(() => import('./Pages/Admin/AdminImages'))
-const AdminResume = lazy(() => import('./Pages/Admin/AdminResume'))
+
+const AdminShell = lazy(() => import('./admin/layout/AdminShell'))
+const Dashboard = lazy(() => import('./admin/pages/Dashboard'))
+const ImagesPage = lazy(() => import('./admin/pages/ImagesPage'))
+const ResumePage = lazy(() => import('./admin/pages/ResumePage'))
+const ContactsPage = lazy(() => import('./admin/pages/ContactsPage'))
+const SettingsPage = lazy(() => import('./admin/pages/SettingsPage'))
 
 const wrap = (Component) => (
   <Suspense fallback={<LoadingFallback />}>
@@ -32,9 +36,13 @@ const router = createBrowserRouter(
         <Route path='resume' element={wrap(Resume)} />
         <Route path='contact' element={wrap(Contact)} />
       </Route>
-      <Route path='/admin' element={wrap(AdminLayout)}>
-        <Route path='images' element={wrap(AdminImages)} />
-        <Route path='resume' element={wrap(AdminResume)} />
+      <Route path='/admin' element={wrap(AdminShell)}>
+        <Route index element={wrap(Dashboard)} />
+        <Route path='images' element={wrap(ImagesPage)} />
+        <Route path='images/:category' element={wrap(ImagesPage)} />
+        <Route path='resume' element={wrap(ResumePage)} />
+        <Route path='contacts' element={wrap(ContactsPage)} />
+        <Route path='settings' element={wrap(SettingsPage)} />
       </Route>
     </>
   )
