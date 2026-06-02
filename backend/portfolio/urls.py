@@ -6,6 +6,7 @@ from .views import (
     ResumeUploadView,
     ResumeDeleteView,
     ContactCreateView,
+    ContactListView,
 )
 
 urlpatterns = [
@@ -15,4 +16,5 @@ urlpatterns = [
     path('resume/upload/', ResumeUploadView.as_view()),
     path('resume/<int:pk>/', ResumeDeleteView.as_view()),
     path('contact/', ContactCreateView.as_view()),
+    path('contacts/', ContactListView.as_view()),
 ]

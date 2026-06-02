@@ -62,3 +62,9 @@ class ContactSerializer(serializers.ModelSerializer):
         if len(value.strip()) < 10:
             raise serializers.ValidationError("Message too short.")
         return value
+
+
+class ContactReadSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Contact
+        fields = ['id', 'name', 'email', 'message', 'created_at']

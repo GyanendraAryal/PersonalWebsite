@@ -4,7 +4,12 @@ from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
 
 from .models import PortfolioImage, Resume, Contact
-from .serializers import PortfolioImageSerializer, ResumeSerializer, ContactSerializer
+from .serializers import (
+    PortfolioImageSerializer,
+    ResumeSerializer,
+    ContactSerializer,
+    ContactReadSerializer,
+)
 
 
 class PortfolioImageListCreateView(generics.ListCreateAPIView):
@@ -56,3 +61,8 @@ class ResumeDeleteView(generics.DestroyAPIView):
 class ContactCreateView(generics.CreateAPIView):
     queryset = Contact.objects.all()
     serializer_class = ContactSerializer
+
+
+class ContactListView(generics.ListAPIView):
+    queryset = Contact.objects.all()
+    serializer_class = ContactReadSerializer
