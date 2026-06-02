@@ -4,9 +4,31 @@ const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api',
 })
 
+/** Always return an array from list endpoints (handles DRF pagination wrappers). */
+export function normalizeImageList(data) {
+  if (Array.isArray(data)) return data
+  if (data && typeof data === 'object') {
+    if (Array.isArray(data.results)) return data.results
+    if (Array.isArray(data.data)) return data.data
+  }
+  console.warn('[api] normalizeImageList: unexpected shape', data)
+  return []
+}
+
+export function getImageUrl(item) {
+  if (!item || typeof item !== 'object') return ''
+  const url = item.image_url || item.image || item.url
+  return typeof url === 'string' ? url.trim() : ''
+}
+
 // Images
 export const getImages = (category) =>
-  api.get('/images/', { params: category ? { category } : {} })
+  api
+    .get('/images/', { params: category ? { category } : {} })
+    .then((res) => ({
+      ...res,
+      data: normalizeImageList(res.data),
+    }))
 
 export const uploadImage = (formData, config = {}) =>
   api.post('/images/', formData, {
