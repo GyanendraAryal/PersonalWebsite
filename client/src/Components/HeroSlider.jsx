@@ -2,12 +2,20 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import useTypingAnimation from '../Hooks/useTypingAnimation'
 import { getImages, getImageUrl } from '../api'
+import heroImg from '../assets/heroImg.png'
+import heroImg1 from '../assets/heroImg1.png'
 
 const words = [
   'Modern Web Experiences.',
   'Scalable MERN Apps.',
   'Clean, Fast UIs.',
   'Real-World Products.',
+]
+
+// Fallback hero images when API is unavailable
+const fallbackHeroImages = [
+  { id: 'fallback-1', title: 'Portfolio Hero', image_url: heroImg },
+  { id: 'fallback-2', title: 'Portfolio Hero Alt', image_url: heroImg1 },
 ]
 
 const HeroSlider = () => {
@@ -48,14 +56,22 @@ const HeroSlider = () => {
           )
         }
 
-        setSlides(withUrl)
+        // Use API images if available, otherwise fallback to local images
+        const imagesToUse = withUrl.length > 0 ? withUrl : fallbackHeroImages
+        setSlides(imagesToUse)
         setCurrentIndex(0)
-        setStatus(withUrl.length > 0 ? 'ready' : 'empty')
+        setStatus('ready')
+        
+        if (withUrl.length === 0) {
+          console.log('[HeroSlider] Using fallback local images')
+        }
       } catch (error) {
         console.error('[HeroSlider] Error fetching hero images:', error)
         if (!cancelled) {
-          setSlides([])
-          setStatus('error')
+          // On API failure, use fallback images
+          console.log('[HeroSlider] API failed, using fallback local images')
+          setSlides(fallbackHeroImages)
+          setStatus('ready')
         }
       }
     }
@@ -155,49 +171,71 @@ const HeroSlider = () => {
   }, [status, activeSlide, imageSrc, safeIndex, imgError])
 
   return (
-    <div className="min-h-screen w-full overflow-hidden bg-black">
-      <div
-        className="mx-auto flex max-w-7xl flex-col-reverse items-center justify-between px-4 py-20 sm:px-6 lg:flex-row lg:px-8"
-      >
-        <div className="mt-8 flex w-full flex-col justify-center text-center lg:mt-0 lg:w-1/2 lg:text-left">
-          <p className="mb-4 text-xs uppercase tracking-[3px] text-white sm:text-sm">
-            Full Stack Developer • React • Node.js
-          </p>
+    <div className="relative min-h-screen w-full overflow-hidden bg-gradient-to-br from-gray-900 via-black to-slate-900">
+      {/* Enhanced Background Effects */}
+      <div className="absolute inset-0">
+        <div className="absolute top-20 left-10 h-72 w-72 rounded-full bg-orange-500/10 blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-20 right-10 h-96 w-96 rounded-full bg-purple-500/10 blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute top-1/2 left-1/2 h-40 w-40 -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-500/10 blur-2xl animate-pulse delay-500"></div>
+      </div>
 
+      {/* Animated grid pattern */}
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:100px_100px] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_0%,#000_70%,transparent_110%)]"></div>
+
+      <div className="relative z-10 mx-auto flex max-w-7xl flex-col-reverse items-center justify-between px-4 py-20 sm:px-6 lg:flex-row lg:px-8 min-h-screen">
+        <div className="mt-8 flex w-full flex-col justify-center text-center lg:mt-0 lg:w-1/2 lg:text-left">
+          {/* Enhanced Badge */}
+          <div className="mb-6 inline-flex items-center justify-center lg:justify-start">
+            <span className="rounded-full bg-gradient-to-r from-orange-500/20 to-purple-500/20 backdrop-blur-sm border border-orange-500/30 px-4 py-2 text-xs font-semibold tracking-[3px] text-orange-300 uppercase animate-fade-in">
+              Full Stack Developer • React • Node.js
+            </span>
+          </div>
+
+          {/* Enhanced Main Title */}
           <h1 className="text-4xl font-bold leading-tight text-white sm:text-5xl md:text-6xl lg:text-7xl">
-            Building{' '}
-            <span className="text-orange-500">
+            <span className="inline-block animate-fade-in">Building</span>{' '}
+            <span className="inline-block bg-gradient-to-r from-orange-400 via-orange-500 to-orange-600 bg-clip-text text-transparent animate-gradient bg-[length:200%_200%]">
               {typed}
-              <span className="animate-pulse">|</span>
+              <span className="animate-pulse text-orange-400">|</span>
             </span>
           </h1>
 
-          <p className="mx-auto mt-5 max-w-xl text-sm leading-7 text-gray-400 sm:text-base md:text-lg lg:mx-0">
-            I craft <span className="font-medium text-white">fast, scalable web apps</span> with{' '}
-            <span className="font-medium text-white">React, Node.js & MongoDB</span> — turning
+          {/* Enhanced Description */}
+          <p className="mx-auto mt-6 max-w-xl text-base leading-8 text-gray-300 sm:text-lg md:text-xl lg:mx-0 animate-fade-in delay-300">
+            I craft <span className="font-semibold text-white bg-gradient-to-r from-white to-gray-200 bg-clip-text">fast, scalable web apps</span> with{' '}
+            <span className="font-semibold text-orange-400">React, Node.js & MongoDB</span> — turning
             real-world problems into{' '}
-            <span className="font-medium text-white">clean, intuitive products</span> that users
+            <span className="font-semibold text-white bg-gradient-to-r from-white to-gray-200 bg-clip-text">clean, intuitive products</span> that users
             actually enjoy.
           </p>
 
-          <div className="mt-8 flex flex-col justify-center gap-4 sm:flex-row lg:justify-start">
+          {/* Enhanced CTA Buttons */}
+          <div className="mt-10 flex flex-col justify-center gap-4 sm:flex-row lg:justify-start animate-fade-in delay-500">
             <Link
               to="/work"
-              className="rounded-lg bg-white px-6 py-3 font-semibold text-black transition-all duration-300 hover:bg-orange-400 hover:text-white"
+              className="group relative overflow-hidden rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 px-8 py-4 font-semibold text-white shadow-lg shadow-orange-500/25 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-orange-500/40"
             >
-              View Projects
+              <span className="relative z-10">View Projects</span>
+              <div className="absolute inset-0 bg-gradient-to-r from-orange-600 to-orange-700 opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
             </Link>
             <Link
               to="/contact"
-              className="rounded-lg border border-gray-700 px-6 py-3 text-white transition-all duration-300 hover:text-orange-400"
+              className="group rounded-xl border border-gray-600/50 bg-gray-800/30 backdrop-blur-sm px-8 py-4 font-semibold text-white transition-all duration-300 hover:scale-105 hover:border-orange-500/50 hover:bg-gray-700/40 hover:text-orange-300"
             >
-              Contact
+              <span className="relative z-10">Get In Touch</span>
             </Link>
           </div>
         </div>
 
+        {/* Enhanced Image Container */}
         <div className="relative flex w-full items-center justify-center lg:w-1/2">
-          {imageBlock}
+          <div className="relative">
+            {/* Image glow effect */}
+            <div className="absolute -inset-4 rounded-3xl bg-gradient-to-r from-orange-500/20 to-purple-500/20 blur-2xl"></div>
+            <div className="relative rounded-3xl border border-gray-700/50 bg-gray-800/20 backdrop-blur-sm p-2">
+              {imageBlock}
+            </div>
+          </div>
         </div>
       </div>
     </div>
