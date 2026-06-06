@@ -1,24 +1,5 @@
 from django.db import models
-from django.core.exceptions import ValidationError
-import cloudinary
-from cloudinary_storage.storage import RawMediaCloudinaryStorage
-
-
-ALLOWED_IMAGE_FORMATS = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
-
-
-def validate_image_file(file):
-    if hasattr(file, 'content_type') and file.content_type not in ALLOWED_IMAGE_FORMATS:
-        raise ValidationError("Only JPEG, PNG, WebP, and GIF images are allowed.")
-    if file.size > 5 * 1024 * 1024:
-        raise ValidationError("Image must be under 5MB.")
-
-
-def validate_pdf(file):
-    if not file.name.lower().endswith('.pdf'):
-        raise ValidationError("Only PDF files are allowed.")
-    if file.size > 10 * 1024 * 1024:
-        raise ValidationError("Resume must be under 10MB.")
+import cloudinary.uploader
 
 
 class PortfolioImage(models.Model):
@@ -43,17 +24,17 @@ class PortfolioImage(models.Model):
 
     def delete(self, *args, **kwargs):
         if self.public_id:
-            cloudinary.uploader.destroy(self.public_id)
+            try:
+                cloudinary.uploader.destroy(self.public_id)
+            except:
+                pass  # Continue deletion even if Cloudinary fails
         super().delete(*args, **kwargs)
 
 
 class Resume(models.Model):
     title = models.CharField(max_length=200, default='Resume')
-    file = models.FileField(
-        upload_to='resumes/',
-        storage=RawMediaCloudinaryStorage(),
-        validators=[validate_pdf]
-    )
+    file_url = models.URLField(max_length=500)
+    public_id = models.CharField(max_length=300)
     uploaded_at = models.DateTimeField(auto_now_add=True)
     is_active = models.BooleanField(default=True)
 
@@ -68,15 +49,23 @@ class Resume(models.Model):
             Resume.objects.exclude(pk=self.pk).update(is_active=False)
         super().save(*args, **kwargs)
 
+    def delete(self, *args, **kwargs):
+        if self.public_id:
+            try:
+                cloudinary.uploader.destroy(self.public_id)
+            except:
+                pass  # Continue deletion even if Cloudinary fails
+        super().delete(*args, **kwargs)
+
 
 class Contact(models.Model):
     name = models.CharField(max_length=100)
-    email = models.EmailField(db_index=True)
+    email = models.EmailField()
     message = models.TextField()
-    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ['-created_at']
 
     def __str__(self):
-        return self.name
+        return f"{self.name} - {self.email}"

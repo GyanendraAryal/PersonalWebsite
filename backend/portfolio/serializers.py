@@ -4,7 +4,7 @@ from .models import PortfolioImage, Resume, Contact
 
 
 class PortfolioImageSerializer(serializers.ModelSerializer):
-    image = serializers.ImageField(write_only=True, required=True)
+    image = serializers.FileField(write_only=True, required=True)
 
     class Meta:
         model = PortfolioImage
@@ -25,7 +25,7 @@ class PortfolioImageSerializer(serializers.ModelSerializer):
         )
 
     def update(self, instance, validated_data):
-        validated_data.pop('image', None)
+        validated_data.pop('image', None)  # Don't update image
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
         instance.save()
@@ -33,24 +33,25 @@ class PortfolioImageSerializer(serializers.ModelSerializer):
 
 
 class ResumeSerializer(serializers.ModelSerializer):
-    file_url = serializers.SerializerMethodField()
+    file = serializers.FileField(write_only=True, required=True)
 
     class Meta:
         model = Resume
         fields = ['id', 'title', 'file', 'file_url', 'uploaded_at', 'is_active']
-        read_only_fields = ['id', 'uploaded_at', 'file_url']
+        read_only_fields = ['id', 'file_url', 'uploaded_at']
 
-    def get_file_url(self, obj):
-        if obj.file:
-            return obj.file.url
-        return None
-
-    def validate_file(self, value):
-        if not value.name.lower().endswith('.pdf'):
-            raise serializers.ValidationError("Only PDF files are allowed.")
-        if value.size > 10 * 1024 * 1024:
-            raise serializers.ValidationError("Resume must be under 10MB.")
-        return value
+    def create(self, validated_data):
+        file = validated_data.pop('file')
+        result = cloudinary.uploader.upload(
+            file,
+            folder='portfolio/resumes',
+            resource_type='raw',
+        )
+        return Resume.objects.create(
+            file_url=result['secure_url'],
+            public_id=result['public_id'],
+            **validated_data
+        )
 
 
 class ContactSerializer(serializers.ModelSerializer):
