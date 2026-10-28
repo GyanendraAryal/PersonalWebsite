@@ -29,10 +29,10 @@ urlpatterns = [
         SpectacularRedocView.as_view(url_name="schema"),
         name="redoc",
     ),
-    path("api/", include("portfolio.urls")),
     path("api/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
-    path("api/work/", include("work.urls")),
-    path("api/user/", include("user.urls")),
+    path("api/", include("portfolio.urls")),  # images/, resume/, contact/, contacts/
+    path("api/work/", include("work.urls")),  # "", profile/, services/, skills/
+    path("api/user/", include("user.urls")),  # ""
     path("health/", health),
 ]
