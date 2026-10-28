@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
-import { ArrowUpRight, GitBranch, Loader2 } from 'lucide-react'
+import { ArrowUpRight, GitBranch } from 'lucide-react'
+import { getWorks } from '../api'
 
 function ProjectCard({ project, index }) {
   const [imgError, setImgError] = useState(false)
@@ -7,10 +8,10 @@ function ProjectCard({ project, index }) {
   return (
     <article className="card card-hover group flex flex-col overflow-hidden h-full">
       {/* Image */}
-      {project.image && !imgError ? (
+      {project.image_url && !imgError ? (
         <div className="relative h-44 overflow-hidden bg-[#1a1a1c] shrink-0">
           <img
-            src={project.image}
+            src={project.image_url}
             alt={project.title}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             onError={() => setImgError(true)}
@@ -40,13 +41,13 @@ function ProjectCard({ project, index }) {
 
         {/* Description */}
         <p className="text-[0.8125rem] text-zinc-500 leading-relaxed flex-1">
-          {project.desc}
+          {project.description}
         </p>
 
         {/* Tech stack */}
-        {project.tech?.length > 0 && (
+        {project.tech_stack?.length > 0 && (
           <div className="flex flex-wrap gap-1.5">
-            {project.tech.map((t) => (
+            {project.tech_stack.map((t) => (
               <span
                 key={t}
                 className="px-2 py-0.5 rounded text-[0.6875rem] font-medium text-zinc-500 bg-white/[0.04] border border-white/6"
@@ -58,11 +59,11 @@ function ProjectCard({ project, index }) {
         )}
 
         {/* Links */}
-        {(project.live || project.repo) && (
+        {(project.live_url || project.repo_url) && (
           <div className="flex items-center gap-2 pt-1">
-            {project.live && (
+            {project.live_url && (
               <a
-                href={project.live}
+                href={project.live_url}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-1 text-xs font-medium text-orange-500 px-2.5 py-1 rounded-md border border-orange-500/25 bg-orange-500/6 hover:bg-orange-500/15 transition-colors"
@@ -70,9 +71,9 @@ function ProjectCard({ project, index }) {
                 Live <ArrowUpRight className="w-3 h-3" />
               </a>
             )}
-            {project.repo && (
+            {project.repo_url && (
               <a
-                href={project.repo}
+                href={project.repo_url}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-1 text-xs font-medium text-zinc-500 px-2.5 py-1 rounded-md border border-white/8 hover:border-white/20 hover:text-zinc-300 transition-colors"
@@ -92,9 +93,8 @@ export default function Work() {
   const [status, setStatus]     = useState('loading')
 
   useEffect(() => {
-    fetch('/works.json')
-      .then((r) => r.json())
-      .then((d) => { setProjects(d); setStatus('ready') })
+    getWorks()
+      .then(({ data }) => { setProjects(data); setStatus('ready') })
       .catch(() => setStatus('error'))
   }, [])
 
@@ -116,9 +116,15 @@ export default function Work() {
 
         {/* Loading */}
         {status === 'loading' && (
-          <div className="flex items-center gap-3 text-zinc-500 text-sm">
-            <Loader2 className="w-4 h-4 animate-spin" />
-            Loading projects…
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3" aria-label="Loading projects" aria-busy="true">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="card h-72 animate-pulse p-5" aria-hidden="true">
+                <div className="mb-5 h-32 rounded-lg bg-white/5" />
+                <div className="mb-3 h-3 w-20 rounded bg-white/5" />
+                <div className="mb-3 h-5 w-3/4 rounded bg-white/5" />
+                <div className="h-3 w-full rounded bg-white/5" />
+              </div>
+            ))}
           </div>
         )}
 
@@ -126,7 +132,7 @@ export default function Work() {
         {status === 'error' && (
           <div className="rounded-xl border border-red-900/40 bg-red-950/20 px-6 py-10 text-center max-w-md">
             <p className="text-sm text-red-400 font-medium">Failed to load projects</p>
-            <p className="text-xs text-zinc-500 mt-1">Check that /works.json is accessible.</p>
+            <p className="text-xs text-zinc-500 mt-1">Please try again later.</p>
           </div>
         )}
 
@@ -134,7 +140,7 @@ export default function Work() {
         {status === 'ready' && projects.length === 0 && (
           <div className="rounded-xl border border-dashed border-white/10 px-6 py-16 text-center max-w-md">
             <p className="text-sm text-zinc-400 font-medium">No projects yet</p>
-            <p className="text-xs text-zinc-600 mt-1">Add entries to /public/works.json</p>
+            <p className="text-xs text-zinc-600 mt-1">Projects will appear here when added in the portfolio admin.</p>
           </div>
         )}
 
@@ -150,7 +156,7 @@ export default function Work() {
             }`}
           >
             {projects.map((p, i) => (
-              <ProjectCard key={i} project={p} index={i} />
+              <ProjectCard key={p.id} project={p} index={i} />
             ))}
           </div>
         )}

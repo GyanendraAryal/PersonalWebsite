@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import usePortfolioProfile from "../context/usePortfolioProfile";
 
 const NAV_LINKS = [
   { name: "Home", path: "/" },
@@ -45,25 +46,30 @@ const InstagramIcon = () => (
   </svg>
 );
 
-const SOCIAL = [
+const SOCIAL_ITEMS = [
   {
     label: "GitHub",
-    href: "https://github.com/GyanendraAryal",
+    urlKey: "github_url",
     Icon: GitHubIcon,
   },
   {
     label: "LinkedIn",
-    href: "https://www.linkedin.com/in/gyanendra-aryal/",
+    urlKey: "linkedin_url",
     Icon: LinkedInIcon,
   },
   {
     label: "Instagram",
-    href: "https://instagram.com/g_aryal5",
+    urlKey: "instagram_url",
     Icon: InstagramIcon,
   },
 ];
 
 export default function Footer() {
+  const { profile, status, error } = usePortfolioProfile();
+  const socialLinks = SOCIAL_ITEMS
+    .map(({ urlKey, ...social }) => ({ ...social, href: profile?.[urlKey] }))
+    .filter((social) => social.href);
+
   return (
     <footer className="bg-[#0a0a0c] my-2 border-t border-white/6">
       <div className="section-container py-12">
@@ -72,13 +78,14 @@ export default function Footer() {
           <div>
             <Link to="/" className="inline-flex items-baseline gap-0.5 mb-4">
               <span className="text-lg font-bold text-white tracking-tight">
-                Gyanendra
+                {profile?.display_name}
               </span>
               <span className="text-orange-500 text-xl font-extrabold">.</span>
             </Link>
             <p className="text-sm text-zinc-500 leading-relaxed max-w-xs">
-              Full-stack developer focused on React, Django REST Framework, and
-              clean, maintainable web applications.
+              {status === "loading" ? (
+                <span className="block h-10 animate-pulse rounded bg-white/5" aria-label="Loading profile" />
+              ) : status === "error" ? error : profile?.footer_summary}
             </p>
           </div>
           <div className="hidden lg:block" aria-hidden="true" />
@@ -89,7 +96,7 @@ export default function Footer() {
               Connect
             </p>
             <div className="flex items-center gap-2 mb-4">
-              {SOCIAL.map(({ label, href, Icon }) => (
+              {socialLinks.map(({ label, href, Icon }) => (
                 <a
                   key={label}
                   href={href}
@@ -102,17 +109,18 @@ export default function Footer() {
                 </a>
               ))}
             </div>
-            <p className="text-xs text-zinc-600 leading-relaxed">
-              Open for internships, freelance work, and collaboration on
-              interesting web projects.
-            </p>
+            {status === "ready" && (
+              <p className="text-xs text-zinc-600 leading-relaxed">
+                {profile?.contact_summary}
+              </p>
+            )}
           </div>
         </div>
 
         {/* Bottom bar */}
         <div className="mt-10 pt-6 border-t border-white/6 flex flex-col sm:flex-row items-center justify-between gap-3">
           <p className="text-xs text-zinc-600">
-            © {new Date().getFullYear()} Gyanendra Aryal. All rights reserved.
+            © {new Date().getFullYear()} {profile?.display_name}. All rights reserved.
           </p>
           <p className="text-xs text-zinc-700">
             Built with React + Tailwind CSS

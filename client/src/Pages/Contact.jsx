@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
-import { Mail, MapPin, Send, CheckCircle2, AlertCircle } from 'lucide-react'
+import { Mail, MapPin, Send, CheckCircle2, AlertCircle, ExternalLink } from 'lucide-react'
 import { submitContact } from '../api'
+import usePortfolioProfile from '../context/usePortfolioProfile'
 
 /* Inline SVG social icons — lucide-react@1.x doesn't include brand icons */
 const GitHubIcon = () => (
@@ -14,14 +15,10 @@ const LinkedInIcon = () => (
   </svg>
 )
 
-const CONTACT_INFO = [
-  { icon: Mail,    label: 'Email',    value: 'aryalgyanendra8@gmail.com', href: 'mailto:aryalgyanendra8@gmail.com' },
-  { icon: MapPin,  label: 'Location', value: 'Bhairahawa, Nepal',         href: null },
-]
-
-const SOCIAL = [
-  { label: 'GitHub',   href: 'https://github.com/GyanendraAryal',             icon: GitHubIcon },
-  { label: 'LinkedIn', href: 'https://www.linkedin.com/in/gyanendra-aryal/',  icon: LinkedInIcon },
+const SOCIAL_ITEMS = [
+  { label: 'GitHub', urlKey: 'github_url', icon: GitHubIcon },
+  { label: 'LinkedIn', urlKey: 'linkedin_url', icon: LinkedInIcon },
+  { label: 'Instagram', urlKey: 'instagram_url', icon: ExternalLink },
 ]
 
 /* ── Reusable form field ──────────────────────────────────────── */
@@ -45,11 +42,21 @@ const inputClass =
   'w-full px-4 py-3 rounded-lg bg-white/[0.04] border border-white/10 text-white placeholder-zinc-600 text-sm focus:outline-none focus:border-orange-500/60 focus:ring-2 focus:ring-orange-500/20 transition-colors duration-200'
 
 export default function Contact() {
+  const { profile, status: profileStatus, error: profileError } = usePortfolioProfile()
   const [form, setForm]     = useState({ name: '', email: '', message: '' })
   const [errors, setErrors] = useState({})
   const [status, setStatus] = useState(null) // null | 'loading' | 'success' | 'error'
   const [errMsg, setErrMsg] = useState('')
   const formRef = useRef(null)
+  const contactInfo = profile
+    ? [
+        { icon: Mail, label: 'Email', value: profile.contact_email, href: `mailto:${profile.contact_email}` },
+        { icon: MapPin, label: 'Location', value: profile.location },
+      ].filter(({ value }) => value)
+    : []
+  const socialLinks = SOCIAL_ITEMS
+    .map(({ urlKey, ...social }) => ({ ...social, href: profile?.[urlKey] }))
+    .filter(({ href }) => href)
 
   const validate = () => {
     const e = {}
@@ -103,8 +110,7 @@ export default function Contact() {
             Let's build something together
           </h1>
           <p className="mt-4 text-zinc-400 text-[0.9375rem] leading-7">
-            Open to freelance work, internships, and collaboration on web projects.
-            Drop me a message and I'll get back to you.
+            {profileStatus === 'loading' ? 'Loading contact details…' : profileStatus === 'error' ? profileError : profile?.contact_summary}
           </p>
         </div>
 
@@ -119,7 +125,15 @@ export default function Contact() {
               <p className="text-[0.6875rem] font-semibold tracking-widest uppercase text-zinc-600">
                 Contact
               </p>
-              {CONTACT_INFO.map(({ icon: Icon, label, value, href }) => (
+              {profileStatus === 'loading' && (
+                <div className="space-y-3" aria-label="Loading contact details" aria-busy="true">
+                  {[0, 1].map((item) => (
+                    <div key={item} className="h-10 animate-pulse rounded bg-white/5" aria-hidden="true" />
+                  ))}
+                </div>
+              )}
+              {profileStatus === 'error' && <p className="text-sm text-red-400">{profileError}</p>}
+              {contactInfo.map(({ icon: Icon, label, value, href }) => (
                 <div key={label} className="flex items-start gap-3">
                   <div className="w-8 h-8 rounded-lg bg-orange-500/10 border border-orange-500/20 flex items-center justify-center shrink-0 mt-0.5">
                     <Icon className="w-3.5 h-3.5 text-orange-500" aria-hidden />
@@ -143,8 +157,15 @@ export default function Contact() {
               <p className="text-[0.6875rem] font-semibold tracking-widest uppercase text-zinc-600 mb-4">
                 Profiles
               </p>
+              {profileStatus === 'loading' ? (
+                <div className="space-y-2" aria-label="Loading profiles" aria-busy="true">
+                  {[0, 1].map((item) => (
+                    <div key={item} className="h-11 animate-pulse rounded-lg bg-white/5" aria-hidden="true" />
+                  ))}
+                </div>
+              ) : profileStatus === 'ready' ? (
               <div className="flex flex-col gap-2">
-                {SOCIAL.map(({ label, href, icon: Icon }) => (
+                {socialLinks.map(({ label, href, icon: Icon }) => (
                   <a
                     key={label}
                     href={href}
@@ -157,6 +178,9 @@ export default function Contact() {
                   </a>
                 ))}
               </div>
+              ) : (
+                <p className="text-sm text-red-400">{profileError}</p>
+              )}
             </div>
 
           </div>

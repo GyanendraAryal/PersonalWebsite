@@ -18,6 +18,10 @@ React + Vite frontend with Django REST Framework backend, PostgreSQL database, a
 | `portfolio/urls.py` | New endpoints: `/api/images/`, `/api/resume/`, `/api/resume/upload/`, `/api/contact/` |
 | `portfolio/admin.py` | Django admin for `PortfolioImage`, `Resume`, `Contact` |
 | `portfolio/migrations/0004_*` | New migration for updated models |
+| `work/models.py` | Stores projects, services, skills, and editable portfolio profile content. |
+| `work/views.py` / `work/urls.py` | Public read endpoints for projects, services, skills, and profile content. |
+| `work/admin.py` | Django admin management for projects, services, skills, and the portfolio profile. |
+| `work/migrations/0003_content_api.py` | Adds API-backed content models and migrates the existing services, skills, and profile content. |
 | `requirements.txt` | Added `psycopg2-binary`, `Pillow`. Pinned all versions. |
 | `.env` / `.env.example` | Added `DB_*`, `CORS_ALLOWED_ORIGINS`, `CSRF_TRUSTED_ORIGINS` |
 
@@ -129,6 +133,20 @@ npm run dev
 - Backend API: http://127.0.0.1:8000/api/
 - Django Admin: http://127.0.0.1:8000/admin/
 - Portfolio Admin Dashboard: http://localhost:5173/admin/images
+
+### Portfolio content API
+
+The public frontend loads portfolio content from the backend API:
+
+| Endpoint | Content |
+|----------|---------|
+| `GET /api/work/` | Projects |
+| `GET /api/work/services/` | Active services |
+| `GET /api/work/skills/` | Active skill categories |
+| `GET /api/work/profile/` | Profile, contact, and social-link details |
+| `GET /api/images/?category=hero` | Hero images |
+
+After applying migrations, edit these records in Django admin. Add or remove project records under **Work → Works**; edit service and skill records under their respective sections, and update the singleton profile under **Work → Portfolio profiles**. The first content migration seeds the current services, skills, and profile details. Projects are not seeded from the old static JSON; only projects present in the API database appear on the site.
 
 ---
 

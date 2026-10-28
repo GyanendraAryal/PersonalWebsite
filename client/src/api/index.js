@@ -122,6 +122,26 @@ export const getImages = (category) =>
       data: normalizeImageList(res.data),
     }))
 
+export const getWorks = () =>
+  api.get('/work/').then((res) => ({
+    ...res,
+    data: normalizeImageList(res.data?.data ?? res.data),
+  }))
+
+export const getPortfolioProfile = () => api.get('/work/profile/')
+
+export const getServices = () =>
+  api.get('/work/services/').then((res) => ({
+    ...res,
+    data: normalizeImageList(res.data),
+  }))
+
+export const getSkillCategories = () =>
+  api.get('/work/skills/').then((res) => ({
+    ...res,
+    data: normalizeImageList(res.data),
+  }))
+
 export const uploadImage = (formData, config = {}) =>
   api.post('/images/', formData, {
     headers: { 'Content-Type': 'multipart/form-data' },

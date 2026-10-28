@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import {
   Code2,
   Globe,
@@ -5,69 +6,13 @@ import {
   Container,
   BookOpen,
 } from 'lucide-react'
+import { getApiErrorMessage, getSkillCategories } from '../api'
+import usePortfolioProfile from '../context/usePortfolioProfile'
 
-const CATEGORIES = [
-  {
-    id: 'languages',
-    icon: Code2,
-    label: 'Languages',
-    skills: [
-      { name: 'JavaScript', abbr: 'JS' },
-      { name: 'TypeScript', abbr: 'TS' },
-      { name: 'Python', abbr: 'Py' },
-    ],
-  },
-  {
-    id: 'frontend',
-    icon: Globe,
-    label: 'Frontend',
-    skills: [
-      { name: 'React' },
-      { name: 'TypeScript' },
-      { name: 'Tailwind CSS' },
-      { name: 'Responsive UI' },
-      { name: 'REST API Integration' },
-    ],
-  },
-  {
-    id: 'backend',
-    icon: Server,
-    label: 'Backend',
-    skills: [
-      { name: 'Django' },
-      { name: 'Django REST Framework' },
-      { name: 'REST API Design' },
-      { name: 'API Integration' },
-      { name: 'Data Handling' },
-    ],
-  },
-  {
-    id: 'devops',
-    icon: Container,
-    label: 'DevOps & Tools',
-    skills: [
-      { name: 'Docker' },
-      { name: 'Git' },
-      { name: 'GitHub' },
-      { name: 'Environment Config' },
-      { name: 'Containerization' },
-    ],
-  },
-  {
-    id: 'docs',
-    icon: BookOpen,
-    label: 'Technical Docs',
-    skills: [
-      { name: 'LaTeX' },
-      { name: 'Overleaf' },
-      { name: 'Technical Documentation' },
-      { name: 'Academic Writing' },
-    ],
-  },
-]
+const ICON_MAP = { Code2, Globe, Server, Container, BookOpen }
 
 function CategoryCard({ category }) {
-  const Icon = category.icon
+  const Icon = ICON_MAP[category.icon] ?? Code2
 
   return (
     <div className="group relative flex flex-col gap-5 overflow-hidden rounded-2xl border border-white/[0.07] bg-white/[0.025] p-5 transition-all duration-300 hover:-translate-y-1 hover:border-orange-500/30 hover:bg-white/[0.04] hover:shadow-[0_12px_35px_rgba(0,0,0,0.18)] sm:p-6">
@@ -109,6 +54,23 @@ function CategoryCard({ category }) {
 }
 
 export default function SkillsSection() {
+  const { profile, status: profileStatus, error: profileError } = usePortfolioProfile()
+  const [categories, setCategories] = useState([])
+  const [status, setStatus] = useState('loading')
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    getSkillCategories()
+      .then(({ data }) => {
+        setCategories(data)
+        setStatus('ready')
+      })
+      .catch((requestError) => {
+        setError(getApiErrorMessage(requestError, 'Please try again later.'))
+        setStatus('error')
+      })
+  }, [])
+
   return (
     <section
       id="skills"
@@ -128,22 +90,47 @@ export default function SkillsSection() {
             <span className="text-orange-500">.</span>
           </h2>
 
-          <p className="mt-5 max-w-xl text-[0.9375rem] leading-7 text-zinc-400">
-            I build modern web applications with React and TypeScript,
-            develop backend APIs with Django and Django REST Framework,
-            use Docker for containerized development, and create
-            professional technical documents with LaTeX and Overleaf.
-          </p>
+          {profileStatus === 'loading' ? (
+            <div className="mt-5 h-14 w-full max-w-xl animate-pulse rounded bg-white/5" aria-label="Loading profile" />
+          ) : (
+            <p className="mt-5 max-w-xl text-[0.9375rem] leading-7 text-zinc-400">
+              {profileStatus === 'error' ? profileError : profile?.hero_summary}
+            </p>
+          )}
 
           <div className="mt-6 h-px w-16 bg-orange-500/70" />
         </div>
 
         {/* Skills grid */}
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-          {CATEGORIES.map((cat) => (
-            <CategoryCard key={cat.id} category={cat} />
-          ))}
-        </div>
+        {status === 'loading' && (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5" aria-label="Loading skills" aria-busy="true">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="h-52 animate-pulse rounded-2xl border border-white/[0.07] bg-white/[0.025] p-5" aria-hidden="true">
+                <div className="mb-6 h-11 w-11 rounded-xl bg-white/5" />
+                <div className="mb-3 h-4 w-2/3 rounded bg-white/5" />
+                <div className="h-3 w-full rounded bg-white/5" />
+              </div>
+            ))}
+          </div>
+        )}
+
+        {status === 'error' && (
+          <p className="text-sm text-red-400" role="status">
+            Could not load skills: {error}
+          </p>
+        )}
+
+        {status === 'ready' && categories.length === 0 && (
+          <p className="text-sm text-zinc-500">No skills available.</p>
+        )}
+
+        {status === 'ready' && categories.length > 0 && (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+            {categories.map((category) => (
+              <CategoryCard key={category.id} category={category} />
+            ))}
+          </div>
+        )}
       </div>
     </section>
   )

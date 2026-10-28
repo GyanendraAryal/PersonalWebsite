@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight, ExternalLink } from 'lucide-react'
 
 /* Inline SVGs — lucide-react@1.x doesn't include social brand icons */
 const GitHubIcon = () => (
@@ -15,40 +15,32 @@ const LinkedInIcon = () => (
 )
 import useTypingAnimation from '../Hooks/useTypingAnimation'
 import { getImages, getImageUrl } from '../api'
-import heroImg from '../assets/pic1.png'
-import heroImg1 from '../assets/pic2.png'
+import usePortfolioProfile from '../context/usePortfolioProfile'
 
-const WORDS = [
-  'Full‑Stack Developer.',
-  'React Specialist.',
-  'Django API Engineer.',
-  'Clean UI Builder.',
-]
-
-const FALLBACK_IMAGES = [
-  { id: 'fb-1', title: 'Hero', image_url: heroImg },
-  { id: 'fb-2', title: 'Hero Alt', image_url: heroImg1 },
+const SOCIAL_ITEMS = [
+  { label: 'GitHub', urlKey: 'github_url', Icon: GitHubIcon },
+  { label: 'LinkedIn', urlKey: 'linkedin_url', Icon: LinkedInIcon },
+  { label: 'Instagram', urlKey: 'instagram_url', Icon: ExternalLink },
 ]
 
 export default function HeroSlider() {
+  const { profile, status: profileStatus, error: profileError } = usePortfolioProfile()
   const [slides, setSlides]       = useState([])
   const [idx, setIdx]             = useState(0)
   const [status, setStatus]       = useState('loading')
-  const [imgError, setImgError]   = useState(false)
+  const [failedImageUrl, setFailedImageUrl] = useState('')
 
   /* ── Fetch hero images ───────────────────────────── */
   useEffect(() => {
     let dead = false
-    setStatus('loading')
     getImages('hero')
       .then((res) => {
         if (dead) return
-        const valid = res.data.filter(getImageUrl)
-        setSlides(valid.length > 0 ? valid : FALLBACK_IMAGES)
+        setSlides(res.data.filter(getImageUrl))
         setStatus('ready')
       })
       .catch(() => {
-        if (!dead) { setSlides(FALLBACK_IMAGES); setStatus('ready') }
+        if (!dead) setStatus('error')
       })
     return () => { dead = true }
   }, [])
@@ -63,11 +55,13 @@ export default function HeroSlider() {
   const safeIdx    = slides.length ? Math.min(idx, slides.length - 1) : 0
   const activeSlide = slides[safeIdx] ?? null
   const imageSrc    = getImageUrl(activeSlide)
-
-  useEffect(() => { setImgError(false) }, [imageSrc])
+  const imgError = imageSrc === failedImageUrl
+  const socialLinks = SOCIAL_ITEMS
+    .map(({ urlKey, ...social }) => ({ ...social, href: profile?.[urlKey] }))
+    .filter(({ href }) => href)
 
   /* ── Typing animation ────────────────────────────── */
-  const typed = useTypingAnimation(WORDS, {
+  const typed = useTypingAnimation(profile?.hero_roles ?? [], {
     typingSpeed: 70,
     deletingSpeed: 45,
     pauseDelay: 2200,
@@ -86,7 +80,9 @@ export default function HeroSlider() {
     )
 
     if (!activeSlide || !imageSrc || imgError) return placeholder(
-      <p className="text-xs text-zinc-500">{imgError ? 'Image failed to load' : 'No hero image'}</p>
+      <p className="text-xs text-zinc-500">
+        {status === 'error' ? 'Hero images are temporarily unavailable' : imgError ? 'Image failed to load' : 'No hero images available'}
+      </p>
     )
 
     return (
@@ -97,7 +93,7 @@ export default function HeroSlider() {
         className="h-auto w-full max-w-[520px] rounded-xl object-contain animate-fade-in drop-shadow-[0_16px_48px_rgba(0,0,0,0.7)]"
         loading="eager"
         decoding="async"
-        onError={() => setImgError(true)}
+        onError={() => setFailedImageUrl(imageSrc)}
       />
     )
   }, [status, activeSlide, imageSrc, safeIdx, imgError])
@@ -114,9 +110,11 @@ export default function HeroSlider() {
           <div className="w-full max-w-2xl text-center lg:text-left lg:flex-1">
 
             {/* Label */}
-            <p className="section-label mb-3 animate-fade-up">
-              Available for work
-            </p>
+            {profileStatus === 'ready' && (
+              <p className="section-label mb-3 animate-fade-up">
+                {profile.is_available ? 'Available for work' : 'Currently unavailable'}
+              </p>
+            )}
 
             {/* Headline */}
             <h1 className="text-4xl font-bold leading-[1.12] text-white sm:text-5xl lg:text-[3.5rem] animate-fade-up [animation-delay:80ms]">
@@ -132,15 +130,13 @@ export default function HeroSlider() {
             </h1>
 
             {/* Body */}
-            <p className="mt-6 text-[0.9375rem] leading-7 text-zinc-400 max-w-xl mx-auto lg:mx-0 animate-fade-up [animation-delay:160ms]">
-              I craft modern web applications with{' '}
-              <span className="text-zinc-200 font-medium">React</span> and{' '}
-              <span className="text-zinc-200 font-medium">TypeScript</span>, build backend APIs
-              with <span className="text-zinc-200 font-medium">Django REST Framework</span>,
-              use <span className="text-zinc-200 font-medium">Docker</span> for containerized
-              development, and write professional documents with{' '}
-              <span className="text-zinc-200 font-medium">LaTeX</span>.
-            </p>
+            {profileStatus === 'loading' ? (
+              <div className="mt-6 h-16 w-full max-w-xl animate-pulse rounded bg-white/5" aria-label="Loading profile" />
+            ) : (
+              <p className="mt-6 text-[0.9375rem] leading-7 text-zinc-400 max-w-xl mx-auto lg:mx-0 animate-fade-up [animation-delay:160ms]">
+                {profileStatus === 'error' ? profileError : profile?.hero_summary}
+              </p>
+            )}
 
             {/* CTAs */}
             <div className="mt-9 flex flex-wrap justify-center gap-3 lg:justify-start animate-fade-up [animation-delay:240ms]">
@@ -153,27 +149,24 @@ export default function HeroSlider() {
             </div>
 
             {/* Social links */}
-            <div className="mt-8 flex justify-center gap-4 lg:justify-start animate-fade-up [animation-delay:320ms]">
-              <a
-                href="https://github.com/GyanendraAryal"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="GitHub profile"
-                className="flex items-center gap-2 text-zinc-500 hover:text-white text-sm transition-colors"
-              >
-                <GitHubIcon /> GitHub
-              </a>
-              <span className="text-zinc-700" aria-hidden>·</span>
-              <a
-                href="https://www.linkedin.com/in/gyanendra-aryal/"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="LinkedIn profile"
-                className="flex items-center gap-2 text-zinc-500 hover:text-white text-sm transition-colors"
-              >
-                <LinkedInIcon /> LinkedIn
-              </a>
-            </div>
+            {socialLinks.length > 0 && (
+              <div className="mt-8 flex justify-center gap-4 lg:justify-start animate-fade-up [animation-delay:320ms]">
+                {socialLinks.map(({ label, href, Icon }, index) => (
+                  <span key={label} className="contents">
+                    {index > 0 && <span className="text-zinc-700" aria-hidden>·</span>}
+                    <a
+                      href={href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={`${label} profile`}
+                      className="flex items-center gap-2 text-zinc-500 hover:text-white text-sm transition-colors"
+                    >
+                      <Icon /> {label}
+                    </a>
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* ── Image column ──────────────────────────── */}

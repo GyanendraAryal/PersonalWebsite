@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { NavLink, Link, useLocation } from "react-router-dom";
 import { Menu, Moon, Sun, X } from "lucide-react";
 import useTheme from "../Hooks/useTheme";
+import usePortfolioProfile from "../context/usePortfolioProfile";
 
 const NAV_ITEMS = [
   { name: "Home", path: "/" },
@@ -13,6 +14,7 @@ const NAV_ITEMS = [
 
 export default function Navbar() {
   const { themeMode, toggleTheme } = useTheme();
+  const { profile, status } = usePortfolioProfile();
   const darkMode = themeMode === "dark";
 
   const [open, setOpen] = useState(false);
@@ -57,10 +59,10 @@ export default function Navbar() {
           <Link
             to="/"
             className="flex items-baseline gap-0.5 shrink-0 focus-visible:outline-offset-4"
-            aria-label="Gyanendra — home"
+            aria-label="Portfolio home"
           >
             <span className="text-[1.1rem] font-bold tracking-tight text-white leading-none">
-              Gyanendra
+              {status === "loading" ? "…" : profile?.display_name}
             </span>
             <span className="text-orange-500 text-xl font-extrabold leading-none translate-y-px">
               .
@@ -152,7 +154,7 @@ export default function Navbar() {
                 className="flex items-baseline gap-0.5"
               >
                 <span className="text-[1rem] font-bold text-white">
-                  Gyanendra
+                  {status === "loading" ? "…" : profile?.display_name}
                 </span>
                 <span className="text-orange-500 text-lg font-extrabold">
                   .
