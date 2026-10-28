@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { NavLink, Link, useLocation } from "react-router-dom";
 import { Menu, Moon, Sun, X } from "lucide-react";
-import useTheme from "../hooks/useTheme";
+import useTheme from "../Hooks/useTheme";
 
 const NAV_ITEMS = [
   { name: "Home", path: "/" },
