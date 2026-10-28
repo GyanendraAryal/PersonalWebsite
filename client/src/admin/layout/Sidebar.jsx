@@ -48,7 +48,7 @@ function NavItem({ to, end, label, icon: Icon, collapsed, onNavigate }) {
         [
           'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-150',
           isActive
-            ? 'bg-violet-500/15 text-white border border-violet-500/20'
+            ? 'bg-orange-500/15 text-white border border-orange-500/20'
             : 'text-zinc-400 hover:text-zinc-100 hover:bg-white/5',
           collapsed ? 'justify-center px-2.5' : '',
         ].join(' ')
@@ -65,7 +65,7 @@ export default function Sidebar({ collapsed, onToggle, onNavigate }) {
     <aside
       className={[
         'hidden lg:flex flex-col fixed left-0 top-0 z-40 h-screen',
-        'bg-[#111113] border-r border-white/5',
+        'bg-[#141416] border-r border-white/5',
         'transition-[width] duration-300',
         collapsed ? 'w-[64px]' : 'w-[240px]',
       ].join(' ')}
@@ -77,7 +77,7 @@ export default function Sidebar({ collapsed, onToggle, onNavigate }) {
           collapsed ? 'justify-center px-0' : '',
         ].join(' ')}
       >
-        <div className="h-7 w-7 flex items-center justify-center rounded-lg bg-gradient-to-br from-violet-600 to-cyan-600 shrink-0">
+        <div className="h-7 w-7 flex items-center justify-center rounded-lg bg-gradient-to-br from-orange-500 to-orange-600 shrink-0">
           <span className="text-white text-xs font-bold">G</span>
         </div>
         {!collapsed && (

@@ -15,7 +15,6 @@ ALLOWED_HOSTS = config(
     default="localhost,127.0.0.1,portfolio-backend-yima.onrender.com",
 )
 INSTALLED_APPS = [
-    "unfold",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -23,10 +22,14 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
+    "rest_framework_simplejwt",
+    "drf_spectacular",
     "corsheaders",
     "cloudinary",
     "cloudinary_storage",
     "portfolio",
+    "work",
+    "user",
 ]
 
 MIDDLEWARE = [
@@ -68,12 +71,23 @@ cloudinary.config(
 
 # ── DRF ───────────────────────────────────────────────────────────────────────
 REST_FRAMEWORK = {
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.AllowAny",
     ],
     "DEFAULT_RENDERER_CLASSES": [
         "rest_framework.renderers.JSONRenderer",
     ],
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ),
+}
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Personal Portfolio API",
+    "DESCRIPTION": "Portfolio content, resume, contact, and admin profile endpoints.",
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
 }
 
 # ── STORAGE ───────────────────────────────────────────────────────────────────
@@ -134,70 +148,13 @@ USE_TZ = True
 # ── STATIC ────────────────────────────────────────────────────────────────────
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
-UNFOLD = {
-    "SITE_TITLE": "Portfolio CMS",
-    "SITE_HEADER": "Portfolio Dashboard",
-    "SITE_SYMBOL": "dashboard",
-
-    "SHOW_HISTORY": True,
-    "SHOW_VIEW_ON_SITE": True,
-
-    "THEME": "dark",
-
-    "COLORS": {
-        "primary": {
-            "50": "240 249 255",
-            "100": "224 242 254",
-            "200": "186 230 253",
-            "300": "125 211 252",
-            "400": "56 189 248",
-            "500": "14 165 233",
-            "600": "2 132 199",
-            "700": "3 105 161",
-            "800": "7 89 133",
-            "900": "12 74 110",
-        },
-    },
-
-    "SIDEBAR": {
-        "show_search": True,
-        "show_all_applications": False,
-        "navigation": [
-            {
-                "title": "Content",
-                "items": [
-                    {
-                        "title": "Portfolio Images",
-                        "icon": "image",
-                        "link": "/admin/portfolio/portfolioimage/",
-                    },
-                    {
-                        "title": "Resumes",
-                        "icon": "description",
-                        "link": "/admin/portfolio/resume/",
-                    },
-                ],
-            },
-            {
-                "title": "Communication",
-                "items": [
-                    {
-                        "title": "Contacts",
-                        "icon": "mail",
-                        "link": "/admin/portfolio/contact/",
-                    },
-                ],
-            },
-        ],
-    },
-}
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # ── SECURITY (production) ─────────────────────────────────────────────────────
 if not DEBUG:
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
-    SECURE_SSL_REDIRECT = True
+    SECURE_SSL_REDIRECT = False
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
     SECURE_HSTS_SECONDS = 31536000

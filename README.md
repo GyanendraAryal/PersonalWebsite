@@ -110,6 +110,8 @@ python manage.py migrate
 python manage.py createsuperuser
 ```
 
+Create the initial admin account once. The Django admin then disables adding or deleting admin accounts; the account is shared with the existing JWT authentication endpoints.
+
 ### 5. Run the project
 
 ```bash
@@ -196,29 +198,7 @@ Images are stored under `portfolio/images/`, resumes under `resumes/`.
 
 ## API Reference
 
-### Images
-
-```
-GET    /api/images/              List all images
-GET    /api/images/?category=hero  Filter by category (hero/work/about/other)
-POST   /api/images/              Upload image (multipart: image, title, category)
-PATCH  /api/images/<id>/         Update title/category
-DELETE /api/images/<id>/         Delete from DB + Cloudinary
-```
-
-### Resume
-
-```
-GET    /api/resume/              Get active resume
-POST   /api/resume/upload/       Upload PDF (multipart: file, title)
-DELETE /api/resume/<id>/         Delete resume
-```
-
-### Contact
-
-```
-POST   /api/contact/             Submit contact form (name, email, message)
-```
+The interactive API documentation is available at `/api/schema/swagger-ui/` (Swagger UI) and `/api/schema/redoc/` (ReDoc). The generated OpenAPI schema is at `/api/schema/`.
 
 ---
 
@@ -272,7 +252,8 @@ ALLOWED_HOSTS=your-backend.onrender.com
 | `/admin/images` | Upload, edit, delete, filter portfolio images |
 | `/admin/resume` | Upload/replace/delete resume PDF |
 
-> Django's built-in admin is also available at `/admin/` (requires superuser login).
+> Sign in at `/admin/login` with the single admin account to access the React dashboard. Resume uploads are stored in Cloudinary. Django's built-in admin is also available at `/admin/` (requires superuser login).
+> In Django admin, **Portfolio → Resumes** supports uploading PDF files (max 10 MB) directly to Cloudinary, editing metadata/active status, and deleting records. Add a new resume to replace the active file; previous versions are retained until explicitly deleted.
 
 ---
 

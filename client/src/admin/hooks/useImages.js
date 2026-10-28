@@ -1,28 +1,44 @@
 import { useCallback, useEffect, useState } from 'react'
-import { deleteImage, getImages, updateImage, uploadImage } from '../../api'
+import { deleteImage, getApiErrorMessage, getImages, updateImage, uploadImage } from '../../api'
 
 export function useImages(categoryFilter = '') {
   const [images, setImages] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
-  const fetchImages = useCallback(async () => {
-    setLoading(true)
-    setError('')
-    try {
-      const res = await getImages(categoryFilter || undefined)
-      setImages(res.data)
-    } catch {
-      setError('Failed to load images.')
-      setImages([])
-    } finally {
-      setLoading(false)
-    }
+  const requestImages = useCallback(async () => {
+    const res = await getImages(categoryFilter || undefined)
+    return res.data
   }, [categoryFilter])
 
+  const fetchImages = useCallback(async () => {
+    setLoading(true)
+    try {
+      setImages(await requestImages())
+      setError('')
+    } catch (requestError) {
+      setError(getApiErrorMessage(requestError, 'Failed to load images.'))
+    }
+    setLoading(false)
+  }, [requestImages])
+
   useEffect(() => {
-    fetchImages()
-  }, [fetchImages])
+    let active = true
+    requestImages()
+      .then((data) => {
+        if (active) {
+          setImages(data)
+          setError('')
+        }
+      })
+      .catch((requestError) => {
+        if (active) setError(getApiErrorMessage(requestError, 'Failed to load images.'))
+      })
+      .finally(() => {
+        if (active) setLoading(false)
+      })
+    return () => { active = false }
+  }, [requestImages])
 
   const upload = async (formData, onProgress) => {
     const res = await uploadImage(formData, {

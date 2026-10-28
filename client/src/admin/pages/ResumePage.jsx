@@ -9,7 +9,7 @@ import EmptyState from '../components/ui/EmptyState'
 import { Skeleton } from '../components/ui/Skeleton'
 
 export default function ResumePage() {
-  const { resume, loading, upload, remove } = useResume()
+  const { resume, loading, error, refetch, upload, remove } = useResume()
   const { toast } = useToast()
   const [title,     setTitle]     = useState('')
   const [uploading, setUploading] = useState(false)
@@ -56,12 +56,19 @@ export default function ResumePage() {
       {/* ── Current resume card ──────────────────────── */}
       <Card>
         <div className="flex items-center gap-2 mb-1">
-          <FileText className="h-4 w-4 text-violet-400" />
+          <FileText className="h-4 w-4 text-orange-400" />
           <h3 className="font-semibold text-sm text-zinc-100">Active resume</h3>
         </div>
         <p className="text-xs text-zinc-600 mb-6">The PDF displayed on your public portfolio.</p>
 
-        {loading && !resume ? (
+        {error ? (
+          <div role="alert" className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-red-500/20 bg-red-500/8 px-4 py-3 text-sm text-red-300">
+            <span>{error}</span>
+            <Button variant="secondary" size="sm" onClick={refetch}>
+              Retry
+            </Button>
+          </div>
+        ) : loading && !resume ? (
           <div className="space-y-3">
             <Skeleton className="h-5 w-48" />
             <Skeleton className="h-10 w-full max-w-xs" />
@@ -139,7 +146,7 @@ export default function ResumePage() {
           placeholder="Title (optional)"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          className="w-full max-w-sm rounded-xl bg-zinc-800/80 border border-white/8 px-3.5 py-2.5 text-sm text-zinc-100 placeholder-zinc-600 mb-4 focus:outline-none focus:border-violet-500/60 transition-colors"
+          className="w-full max-w-sm rounded-xl bg-zinc-800/80 border border-white/8 px-3.5 py-2.5 text-sm text-zinc-100 placeholder-zinc-600 mb-4 focus:outline-none focus:border-orange-500/60 transition-colors"
         />
 
         <UploadZone

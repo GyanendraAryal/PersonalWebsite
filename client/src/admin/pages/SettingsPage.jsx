@@ -5,7 +5,7 @@ import Button from '../components/ui/Button'
 import { useSidebar } from '../hooks/useSidebar'
 import { DJANGO_ADMIN_URL } from '../constants'
 
-function SettingRow({ icon: Icon, iconColor = 'text-violet-400', title, description, control }) {
+function SettingRow({ icon: Icon, iconColor = 'text-orange-400', title, description, control }) {
   return (
     <div className="flex items-center justify-between gap-4 rounded-xl bg-zinc-900/40 border border-white/5 px-4 py-3.5">
       <div className="flex items-center gap-3 min-w-0">
@@ -34,7 +34,7 @@ export default function SettingsPage() {
         <div className="space-y-2">
           <SettingRow
             icon={Moon}
-            iconColor="text-violet-400"
+            iconColor="text-orange-400"
             title="Dark theme"
             description="Enabled by default — matches your portfolio"
             control={
@@ -45,7 +45,7 @@ export default function SettingsPage() {
           />
           <SettingRow
             icon={PanelLeft}
-            iconColor="text-cyan-400"
+            iconColor="text-orange-400"
             title="Sidebar layout"
             description={collapsed ? 'Currently collapsed' : 'Currently expanded'}
             control={
@@ -66,7 +66,7 @@ export default function SettingsPage() {
               API base URL
             </dt>
             <dd className="text-sm font-mono text-zinc-300 break-all">
-              {import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api'}
+              {import.meta.env.VITE_API_URL ? 'Configured via VITE_API_URL' : 'Local development fallback'}
             </dd>
           </div>
         </dl>
@@ -96,7 +96,7 @@ export default function SettingsPage() {
 
       {/* ── Back link ────────────────────────────────── */}
       <p className="text-xs text-zinc-700">
-        <Link to="/" className="text-violet-400 hover:text-violet-300 transition-colors">
+        <Link to="/" className="text-orange-400 hover:text-orange-300 transition-colors">
           ← Back to portfolio site
         </Link>
       </p>

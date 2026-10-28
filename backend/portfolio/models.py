@@ -51,10 +51,7 @@ class Resume(models.Model):
 
     def delete(self, *args, **kwargs):
         if self.public_id:
-            try:
-                cloudinary.uploader.destroy(self.public_id)
-            except:
-                pass  # Continue deletion even if Cloudinary fails
+            cloudinary.uploader.destroy(self.public_id, resource_type="raw")
         super().delete(*args, **kwargs)
 
 

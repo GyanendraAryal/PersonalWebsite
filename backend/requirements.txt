@@ -6,14 +6,16 @@ dj-database-url==2.3.0
 Django==5.2.1
 django-cloudinary-storage==0.3.0
 django-cors-headers==4.7.0
-django-unfold==0.94.0
 djangorestframework==3.16.0
+djangorestframework-simplejwt==5.5.1
+drf-spectacular==0.30.0
 gunicorn==23.0.0
 idna==3.16
 packaging==26.2
 pillow==11.2.1
 psycopg==3.3.4
 psycopg-binary==3.3.4
+psycopg2-binary==2.9.12
 python-decouple==3.8
 requests==2.34.2
 six==1.17.0

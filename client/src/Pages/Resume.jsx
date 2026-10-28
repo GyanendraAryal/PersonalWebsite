@@ -36,7 +36,7 @@ const PROJECTS = [
 ]
 
 export default function Resume() {
-  const [resumeUrl, setResumeUrl] = useState('/Resume.pdf')
+  const [resumeUrl, setResumeUrl] = useState('')
   const [loadingResume, setLoadingResume] = useState(true)
 
   useEffect(() => {
@@ -74,7 +74,8 @@ export default function Resume() {
                 Loading…
               </div>
             ) : (
-              <>
+              resumeUrl ? (
+                <>
                 <a
                   href={resumeUrl}
                   target="_blank"
@@ -94,7 +95,10 @@ export default function Resume() {
                   <ExternalLink className="w-3 h-3" />
                   View PDF
                 </a>
-              </>
+                </>
+              ) : (
+                <p className="text-sm text-zinc-500">Resume is not available right now.</p>
+              )
             )}
           </div>
         </div>

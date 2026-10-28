@@ -29,7 +29,7 @@ export default function MobileDrawer({ open, onClose }) {
 
           {/* Drawer */}
           <motion.aside
-            className="fixed left-0 top-0 z-[60] h-full w-[min(260px,85vw)] bg-[#111113] border-r border-white/5 lg:hidden flex flex-col shadow-2xl"
+            className="fixed left-0 top-0 z-[60] h-full w-[min(260px,85vw)] bg-[#141416] border-r border-white/5 lg:hidden flex flex-col shadow-2xl"
             initial={{ x: '-100%' }}
             animate={{ x: 0 }}
             exit={{ x: '-100%' }}
@@ -39,7 +39,7 @@ export default function MobileDrawer({ open, onClose }) {
             {/* Header */}
             <div className="flex items-center justify-between h-14 px-4 border-b border-white/5 shrink-0">
               <div className="flex items-center gap-2.5">
-                <div className="h-7 w-7 flex items-center justify-center rounded-lg bg-gradient-to-br from-violet-600 to-cyan-600">
+                <div className="h-7 w-7 flex items-center justify-center rounded-lg bg-gradient-to-br from-orange-500 to-orange-600">
                   <span className="text-white text-xs font-bold">G</span>
                 </div>
                 <span className="font-semibold text-sm text-zinc-100">Portfolio CMS</span>
@@ -77,7 +77,7 @@ export default function MobileDrawer({ open, onClose }) {
                             [
                               'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-150',
                               isActive
-                                ? 'bg-violet-500/15 text-white border border-violet-500/20'
+                                ? 'bg-orange-500/15 text-white border border-orange-500/20'
                                 : 'text-zinc-400 hover:text-zinc-100 hover:bg-white/5',
                             ].join(' ')
                           }

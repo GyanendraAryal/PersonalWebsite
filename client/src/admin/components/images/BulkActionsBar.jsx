@@ -10,7 +10,7 @@ export default function BulkActionsBar({ count, onClear, onDelete, deleting }) {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 16 }}
-          className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 admin-glass rounded-2xl px-5 py-3 flex items-center gap-4 shadow-2xl border border-violet-500/20"
+          className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 admin-glass rounded-2xl px-5 py-3 flex items-center gap-4 shadow-2xl border border-orange-500/20"
         >
           <span className="text-sm text-zinc-300">
             <strong className="text-white">{count}</strong> selected

@@ -131,7 +131,7 @@ export default function ImagesPage() {
       {/* ── Upload card ───────────────────────────────── */}
       <Card>
         <div className="flex items-center gap-2 mb-4">
-          <Upload className="h-4 w-4 text-violet-400" />
+          <Upload className="h-4 w-4 text-orange-400" />
           <h3 className="font-semibold text-sm text-zinc-100">Upload images</h3>
         </div>
 
@@ -141,13 +141,13 @@ export default function ImagesPage() {
             placeholder="Title (optional — defaults to filename)"
             value={uploadTitle}
             onChange={(e) => setUploadTitle(e.target.value)}
-            className="rounded-xl bg-zinc-800/80 border border-white/8 px-3.5 py-2.5 text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-violet-500/60 transition-colors col-span-full sm:col-span-1 lg:col-span-2"
+            className="rounded-xl bg-zinc-800/80 border border-white/8 px-3.5 py-2.5 text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-orange-500/60 transition-colors col-span-full sm:col-span-1 lg:col-span-2"
           />
           <select
             value={uploadCategory}
             onChange={(e) => setUploadCategory(e.target.value)}
             disabled={!!fixedCategory}
-            className="rounded-xl bg-zinc-800/80 border border-white/8 px-3.5 py-2.5 text-sm text-zinc-100 focus:outline-none focus:border-violet-500/60 transition-colors disabled:opacity-50"
+            className="rounded-xl bg-zinc-800/80 border border-white/8 px-3.5 py-2.5 text-sm text-zinc-100 focus:outline-none focus:border-orange-500/60 transition-colors disabled:opacity-50"
           >
             {IMAGE_CATEGORIES.map((c) => (
               <option key={c} value={c}>{CATEGORY_LABELS[c]}</option>
@@ -177,7 +177,7 @@ export default function ImagesPage() {
             placeholder="Search by title…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-xl bg-zinc-900/60 border border-white/8 pl-10 pr-4 py-2.5 text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-violet-500/40 transition-colors"
+            className="w-full rounded-xl bg-zinc-900/60 border border-white/8 pl-10 pr-4 py-2.5 text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-orange-500/40 transition-colors"
           />
         </div>
 
@@ -189,7 +189,7 @@ export default function ImagesPage() {
               onClick={() => setFilterCat('')}
               className={`px-3.5 py-2 rounded-xl text-xs font-medium transition-colors ${
                 !filterCat
-                  ? 'bg-violet-500/20 text-violet-300 border border-violet-500/30'
+                  ? 'bg-orange-500/20 text-orange-300 border border-orange-500/30'
                   : 'bg-zinc-800/80 text-zinc-500 border border-white/6 hover:text-zinc-300'
               }`}
             >
@@ -202,7 +202,7 @@ export default function ImagesPage() {
                 onClick={() => setFilterCat(c)}
                 className={`px-3.5 py-2 rounded-xl text-xs font-medium capitalize transition-colors ${
                   filterCat === c
-                    ? 'bg-violet-500/20 text-violet-300 border border-violet-500/30'
+                    ? 'bg-orange-500/20 text-orange-300 border border-orange-500/30'
                     : 'bg-zinc-800/80 text-zinc-500 border border-white/6 hover:text-zinc-300'
                 }`}
               >
@@ -265,7 +265,7 @@ export default function ImagesPage() {
 
       {/* ── Modals ───────────────────────────────────── */}
       <ImagePreviewModal open={!!preview}    image={preview}    onClose={() => setPreview(null)} />
-      <ImageEditModal    open={!!editImage}  image={editImage}  onClose={() => setEditImage(null)} onSave={handleSaveEdit} saving={saving} />
+      <ImageEditModal    key={editImage?.id ?? 'closed'} open={!!editImage} image={editImage} onClose={() => setEditImage(null)} onSave={handleSaveEdit} saving={saving} />
       <BulkActionsBar    count={selected.size} onClear={() => setSelected(new Set())} onDelete={handleBulkDelete} deleting={bulkDeleting} />
     </div>
   )

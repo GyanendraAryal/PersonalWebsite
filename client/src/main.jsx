@@ -4,7 +4,7 @@ import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider } 
 import './index.css'
 import App from './App'
 import PageWrapper from './animate/PageWrapper'
-import ErrorBoundary from './Components/ErrorBoundary'
+import ErrorBoundary from './components/ErrorBoundary'
 import LoadingFallback from './Components/LoadingFallback'
 import { ThemeProvider } from './context/ThemeContext'
 
@@ -18,6 +18,7 @@ const AdminShell = lazy(() => import('./admin/layout/AdminShell'))
 const Dashboard = lazy(() => import('./admin/pages/Dashboard'))
 const ImagesPage = lazy(() => import('./admin/pages/ImagesPage'))
 const ResumePage = lazy(() => import('./admin/pages/ResumePage'))
+const AdminLoginPage = lazy(() => import('./admin/pages/LoginPage'))
 const ContactsPage = lazy(() => import('./admin/pages/ContactsPage'))
 const SettingsPage = lazy(() => import('./admin/pages/SettingsPage'))
 
@@ -30,6 +31,7 @@ const wrap = (Component) => (
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>
+      <Route path='/admin/login' element={wrap(AdminLoginPage)} />
       <Route path='/' element={<App />}>
         <Route path='' element={wrap(Home)} />
         <Route path='service' element={wrap(Services)} />

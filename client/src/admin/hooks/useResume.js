@@ -1,28 +1,44 @@
 import { useCallback, useEffect, useState } from 'react'
-import { deleteResume, getActiveResume, uploadResume } from '../../api'
+import { deleteResume, getActiveResume, getApiErrorMessage, uploadResume } from '../../api'
 
 export function useResume() {
   const [resume, setResume] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
-  const fetchResume = useCallback(async () => {
-    setLoading(true)
-    setError('')
-    try {
-      const res = await getActiveResume()
-      setResume(res.data?.id ? res.data : null)
-    } catch {
-      setError('Failed to load resume.')
-      setResume(null)
-    } finally {
-      setLoading(false)
-    }
+  const requestResume = useCallback(async () => {
+    const res = await getActiveResume()
+    return res.data?.id ? res.data : null
   }, [])
 
+  const fetchResume = useCallback(async () => {
+    setLoading(true)
+    try {
+      setResume(await requestResume())
+      setError('')
+    } catch (requestError) {
+      setError(getApiErrorMessage(requestError, 'Failed to load resume.'))
+    }
+    setLoading(false)
+  }, [requestResume])
+
   useEffect(() => {
-    fetchResume()
-  }, [fetchResume])
+    let active = true
+    requestResume()
+      .then((data) => {
+        if (active) {
+          setResume(data)
+          setError('')
+        }
+      })
+      .catch((requestError) => {
+        if (active) setError(getApiErrorMessage(requestError, 'Failed to load resume.'))
+      })
+      .finally(() => {
+        if (active) setLoading(false)
+      })
+    return () => { active = false }
+  }, [requestResume])
 
   const upload = async (formData, onProgress) => {
     const res = await uploadResume(formData, { onUploadProgress: onProgress })

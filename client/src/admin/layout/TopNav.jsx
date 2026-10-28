@@ -1,5 +1,6 @@
-import { Link, useLocation } from 'react-router-dom'
-import { Menu, ExternalLink } from 'lucide-react'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { LogOut, Menu, ExternalLink } from 'lucide-react'
+import { clearAdminTokens } from '../../api'
 
 const TITLES = {
   '/admin':              { label: 'Overview',       sub: 'Dashboard' },
@@ -14,6 +15,7 @@ const TITLES = {
 
 export default function TopNav({ collapsed, onMenuClick }) {
   const { pathname } = useLocation()
+  const navigate = useNavigate()
   const title =
     TITLES[pathname] ||
     (pathname.startsWith('/admin/images') ? { label: 'Images', sub: 'Images' } : { label: 'Admin', sub: '' })
@@ -21,7 +23,7 @@ export default function TopNav({ collapsed, onMenuClick }) {
   return (
     <header
       className={[
-        'fixed top-0 right-0 z-30 h-14 bg-[#111113]/90 backdrop-blur-md',
+        'fixed top-0 right-0 z-30 h-14 bg-[#141416]/90 backdrop-blur-md',
         'border-b border-white/5',
         'flex items-center justify-between px-4 lg:px-6',
         'transition-[left] duration-300',
@@ -50,14 +52,28 @@ export default function TopNav({ collapsed, onMenuClick }) {
       </div>
 
       {/* Right */}
-      <Link
-        to="/"
-        className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-zinc-500 hover:text-zinc-200 hover:bg-white/5 transition-all duration-200"
-        aria-label="View portfolio site"
-      >
-        <ExternalLink className="h-3.5 w-3.5" />
-        View site
-      </Link>
+      <div className="flex items-center gap-1">
+        <Link
+          to="/"
+          className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-zinc-500 hover:text-zinc-200 hover:bg-white/5 transition-all duration-200"
+          aria-label="View portfolio site"
+        >
+          <ExternalLink className="h-3.5 w-3.5" />
+          View site
+        </Link>
+        <button
+          type="button"
+          onClick={() => {
+            clearAdminTokens()
+            navigate('/admin/login', { replace: true })
+          }}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-zinc-500 hover:text-red-300 hover:bg-white/5 transition-all duration-200"
+          aria-label="Sign out"
+        >
+          <LogOut className="h-3.5 w-3.5" />
+          Sign out
+        </button>
+      </div>
     </header>
   )
 }

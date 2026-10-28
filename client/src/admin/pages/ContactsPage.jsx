@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Mail, MessageSquare, Search } from 'lucide-react'
-import { getContacts } from '../../api'
+import { getApiErrorMessage, getContacts } from '../../api'
 import Card from '../components/ui/Card'
 import Table from '../components/ui/Table'
 import Modal from '../components/ui/Modal'
@@ -13,23 +13,37 @@ const PAGE_SIZE = 10
 export default function ContactsPage() {
   const [contacts, setContacts] = useState([])
   const [loading,  setLoading]  = useState(true)
+  const [error, setError] = useState('')
   const [search,   setSearch]   = useState('')
   const [page,     setPage]     = useState(1)
   const [selected, setSelected] = useState(null)
 
+  const fetchContacts = async () => {
+    setLoading(true)
+    setError('')
+    try {
+      const res = await getContacts()
+      setContacts(Array.isArray(res.data) ? res.data : [])
+    } catch (requestError) {
+      setError(getApiErrorMessage(requestError, 'Could not load contact submissions.'))
+    } finally {
+      setLoading(false)
+    }
+  }
+
   useEffect(() => {
-    let cancelled = false
-    ;(async () => {
-      try {
-        const res = await getContacts()
-        if (!cancelled) setContacts(Array.isArray(res.data) ? res.data : [])
-      } catch {
-        if (!cancelled) setContacts([])
-      } finally {
-        if (!cancelled) setLoading(false)
-      }
-    })()
-    return () => { cancelled = true }
+    let active = true
+    getContacts()
+      .then((res) => {
+        if (active) setContacts(Array.isArray(res.data) ? res.data : [])
+      })
+      .catch((requestError) => {
+        if (active) setError(getApiErrorMessage(requestError, 'Could not load contact submissions.'))
+      })
+      .finally(() => {
+        if (active) setLoading(false)
+      })
+    return () => { active = false }
   }, [])
 
   const filtered = useMemo(() => {
@@ -46,8 +60,6 @@ export default function ContactsPage() {
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
   const paginated  = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
 
-  useEffect(() => { setPage(1) }, [search])
-
   const columns = [
     {
       key: 'name',
@@ -62,7 +74,7 @@ export default function ContactsPage() {
       render: (row) => (
         <a
           href={`mailto:${row.email}`}
-          className="text-violet-400 hover:text-violet-300 transition-colors text-xs"
+          className="text-orange-400 hover:text-orange-300 transition-colors text-xs"
           onClick={(e) => e.stopPropagation()}
         >
           {row.email}
@@ -108,8 +120,8 @@ export default function ContactsPage() {
 
       {/* Summary */}
       <div className="flex items-center gap-3">
-        <div className="w-9 h-9 rounded-lg bg-violet-500/10 border border-violet-500/20 flex items-center justify-center">
-          <Mail className="h-4 w-4 text-violet-400" />
+        <div className="w-9 h-9 rounded-lg bg-orange-500/10 border border-orange-500/20 flex items-center justify-center">
+          <Mail className="h-4 w-4 text-orange-400" />
         </div>
         <div>
           <p className="text-sm font-semibold text-zinc-200">
@@ -126,8 +138,11 @@ export default function ContactsPage() {
           type="search"
           placeholder="Search by name, email, or message…"
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full rounded-xl bg-zinc-900/60 border border-white/8 pl-10 pr-4 py-2.5 text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-violet-500/40 transition-colors"
+          onChange={(e) => {
+            setSearch(e.target.value)
+            setPage(1)
+          }}
+          className="w-full rounded-xl bg-zinc-900/60 border border-white/8 pl-10 pr-4 py-2.5 text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-orange-500/40 transition-colors"
         />
       </div>
 
@@ -138,6 +153,17 @@ export default function ContactsPage() {
             {Array.from({ length: 4 }).map((_, i) => (
               <Skeleton key={i} className="h-12 w-full" />
             ))}
+          </div>
+        ) : error ? (
+          <div role="alert" className="flex flex-wrap items-center justify-between gap-3 p-5 text-sm text-red-300">
+            <span>{error}</span>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={fetchContacts}
+            >
+              Retry
+            </Button>
           </div>
         ) : filtered.length === 0 ? (
           <EmptyState
@@ -201,14 +227,14 @@ export default function ContactsPage() {
 
             {/* Sender info */}
             <div className="flex items-start gap-3 p-4 rounded-xl bg-white/[0.03] border border-white/6">
-              <div className="w-9 h-9 rounded-full bg-violet-500/15 flex items-center justify-center shrink-0 text-sm font-semibold text-violet-300">
+              <div className="w-9 h-9 rounded-full bg-orange-500/15 flex items-center justify-center shrink-0 text-sm font-semibold text-orange-300">
                 {selected.name.charAt(0).toUpperCase()}
               </div>
               <div>
                 <p className="font-semibold text-zinc-100">{selected.name}</p>
                 <a
                   href={`mailto:${selected.email}`}
-                  className="text-sm text-violet-400 hover:text-violet-300 transition-colors"
+                  className="text-sm text-orange-400 hover:text-orange-300 transition-colors"
                 >
                   {selected.email}
                 </a>
@@ -235,7 +261,7 @@ export default function ContactsPage() {
               </span>
               <a
                 href={`mailto:${selected.email}?subject=Re: Portfolio inquiry`}
-                className="text-violet-400 hover:text-violet-300 transition-colors font-medium"
+                className="text-orange-400 hover:text-orange-300 transition-colors font-medium"
               >
                 Reply via email →
               </a>

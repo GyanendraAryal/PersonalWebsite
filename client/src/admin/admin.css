@@ -1,18 +1,67 @@
 .admin-root {
-  --admin-bg: #09090b;
-  --admin-surface: rgba(24, 24, 27, 0.72);
-  --admin-border: rgba(255, 255, 255, 0.06);
-  --admin-accent-from: #8b5cf6;
-  --admin-accent-to: #06b6d4;
+  --admin-bg: var(--color-bg-base, #0e0e10);
+  --admin-surface: rgba(20, 20, 22, 0.88);
+  --admin-border: rgba(255, 255, 255, 0.08);
+  --admin-accent-from: var(--color-accent, #f97316);
+  --admin-accent-to: var(--color-accent-hover, #ea6e0a);
   color: #fafafa;
   background: var(--admin-bg);
+  font-family: var(--font-sans, Inter, system-ui, sans-serif);
   min-height: 100vh;
+}
+
+.admin-auth {
+  --admin-accent-from: var(--color-accent, #f97316);
+  --admin-accent-to: var(--color-accent-hover, #ea6e0a);
+  font-family: var(--font-sans, Inter, system-ui, sans-serif);
 }
 
 .admin-glass {
   background: var(--admin-surface);
   backdrop-filter: blur(20px);
   border: 1px solid var(--admin-border);
+}
+
+[data-theme="light"] .admin-root {
+  --admin-bg: #f4f5f7;
+  --admin-surface: #ffffff;
+  --admin-border: rgba(24, 24, 27, 0.1);
+  color: #18181b;
+}
+
+[data-theme="light"] .admin-root .admin-glass {
+  background: var(--admin-surface);
+  box-shadow: 0 8px 24px rgba(24, 24, 27, 0.05);
+  backdrop-filter: none;
+}
+
+[data-theme="light"] .admin-root [class~="bg-zinc-950"],
+[data-theme="light"] .admin-root [class~="bg-zinc-900"],
+[data-theme="light"] .admin-root [class~="bg-zinc-900/80"],
+[data-theme="light"] .admin-root [class~="bg-zinc-900/60"],
+[data-theme="light"] .admin-root [class~="bg-zinc-900/50"],
+[data-theme="light"] .admin-root [class~="bg-zinc-900/40"],
+[data-theme="light"] .admin-root [class~="bg-zinc-800"],
+[data-theme="light"] .admin-root [class~="bg-zinc-800/80"],
+[data-theme="light"] .admin-root [class~="bg-zinc-800/50"] {
+  background-color: #ffffff;
+}
+
+[data-theme="light"] .admin-root [class~="hover:bg-zinc-700/80"]:hover,
+[data-theme="light"] .admin-root [class~="hover:bg-zinc-900/60"]:hover {
+  background-color: #f1f5f9;
+}
+
+[data-theme="light"] .admin-root [class~="hover:bg-white/[0.03]"]:hover {
+  background-color: #f8fafc;
+}
+
+[data-theme="light"] .admin-root .text-orange-300 {
+  color: #9a3412;
+}
+
+[data-theme="light"] .admin-root .text-orange-400 {
+  color: #c2410c;
 }
 
 .admin-gradient-text {

@@ -27,7 +27,7 @@ export default function ImageCard({
       exit={{ opacity: 0, scale: 0.96 }}
       className={[
         'group admin-glass rounded-3xl overflow-hidden',
-        selected ? 'ring-2 ring-violet-500' : '',
+        selected ? 'ring-2 ring-orange-500' : '',
       ].join(' ')}
     >
       <div className="relative aspect-[4/3] overflow-hidden bg-zinc-900">
@@ -42,7 +42,7 @@ export default function ImageCard({
               type="checkbox"
               checked={selected}
               onChange={() => onSelect(image.id)}
-              className="h-4 w-4 rounded border-zinc-600 bg-zinc-900 text-violet-500"
+              className="h-4 w-4 rounded border-zinc-600 bg-zinc-900 text-orange-500"
             />
           </label>
         )}
