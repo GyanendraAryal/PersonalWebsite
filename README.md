@@ -230,6 +230,7 @@ The interactive API documentation is available at `/api/schema/swagger-ui/` (Swa
    - **Root Directory:** `backend`
    - **Build Command:** `pip install -r requirements.txt`
    - **Start Command:** `gunicorn config.wsgi:application`
+   - Render uses `backend/.python-version` to select Python 3.13, which matches the pinned backend dependencies.
 4. Add all env vars from `backend/.env` in the **Environment** tab
 5. Set `DEBUG=False`, `ALLOWED_HOSTS=your-render-domain.onrender.com`
 6. Add `gunicorn` to `requirements.txt`:
