@@ -66,17 +66,21 @@ const SOCIAL_ITEMS = [
 
 export default function Footer() {
   const { profile, status, error } = usePortfolioProfile();
-  const socialLinks = SOCIAL_ITEMS
-    .map(({ urlKey, ...social }) => ({ ...social, href: profile?.[urlKey] }))
-    .filter((social) => social.href);
+  const socialLinks = SOCIAL_ITEMS.map(({ urlKey, ...social }) => ({
+    ...social,
+    href: profile?.[urlKey],
+  })).filter((social) => social.href);
 
   return (
     <footer className="bg-[#0a0a0c] my-2 border-t border-white/6">
-      <div className="section-container py-12">
-        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1fr_0.5fr_1fr]">
+      <div className="section-container py-10">
+        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr] max-w-4xl">
           {/* Brand */}
           <div>
-            <Link to="/" className="inline-flex items-baseline gap-0.5 mb-4">
+            <Link
+              to="/"
+              className="inline-flex items-center gap-0.5 mb-4 min-h-[1.5rem]"
+            >
               <span className="text-lg font-bold text-white tracking-tight">
                 {profile?.display_name}
               </span>
@@ -84,15 +88,21 @@ export default function Footer() {
             </Link>
             <p className="text-sm text-zinc-500 leading-relaxed max-w-xs">
               {status === "loading" ? (
-                <span className="block h-10 animate-pulse rounded bg-white/5" aria-label="Loading profile" />
-              ) : status === "error" ? error : profile?.footer_summary}
+                <span
+                  className="block h-10 animate-pulse rounded bg-white/5"
+                  aria-label="Loading profile"
+                />
+              ) : status === "error" ? (
+                error
+              ) : (
+                profile?.footer_summary
+              )}
             </p>
           </div>
-          <div className="hidden lg:block" aria-hidden="true" />
 
           {/* Connect */}
           <div>
-            <p className="text-[0.6875rem] font-semibold tracking-widest uppercase text-zinc-600 mb-4">
+            <p className="text-[0.6875rem] font-semibold tracking-widest uppercase text-zinc-400 mb-4">
               Connect
             </p>
             <div className="flex items-center gap-2 mb-4">
@@ -118,11 +128,12 @@ export default function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div className="mt-10 pt-6 border-t border-white/6 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="text-xs text-zinc-600">
-            © {new Date().getFullYear()} {profile?.display_name}. All rights reserved.
+        <div className="mt-8 pt-6 border-t border-white/6 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <p className="text-xs text-zinc-500">
+            © {new Date().getFullYear()} {profile?.display_name}. All rights
+            reserved.
           </p>
-          <p className="text-xs text-zinc-700">
+          <p className="text-xs text-zinc-500">
             Built with React + Tailwind CSS
           </p>
         </div>
