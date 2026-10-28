@@ -65,6 +65,8 @@ export default function Contact() {
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
       e.email = 'Enter a valid email address.'
     if (!form.message.trim()) e.message = 'Message is required.'
+    else if (form.message.trim().length < 10)
+      e.message = 'Message must be at least 10 characters.'
     return e
   }
 

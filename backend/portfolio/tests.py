@@ -8,7 +8,7 @@ from django.test import RequestFactory, TestCase
 from rest_framework.test import APIClient
 
 from .admin import ResumeAdmin, ResumeAdminForm
-from .models import Resume
+from .models import Contact, Resume
 
 
 class ResumeAdminTests(TestCase):
@@ -48,6 +48,13 @@ class ResumeAdminTests(TestCase):
         self.assertIn("/api/resume/", schema["paths"])
         self.assertIn("/api/images/", schema["paths"])
         self.assertIn("/api/token/", schema["paths"])
+        self.assertIn("/api/user/", schema["paths"])
+        self.assertIn("/api/contact/", schema["paths"])
+        self.assertIn("/api/contacts/", schema["paths"])
+        self.assertIn("/api/work/", schema["paths"])
+        self.assertIn("/api/work/profile/", schema["paths"])
+        self.assertIn("/api/work/services/", schema["paths"])
+        self.assertIn("/api/work/skills/", schema["paths"])
         self.assertEqual(swagger_response.status_code, 200)
         self.assertEqual(redoc_response.status_code, 200)
 
@@ -210,3 +217,24 @@ class ResumeAdminTests(TestCase):
             resume.delete()
 
         self.assertTrue(Resume.objects.filter(pk=resume.pk).exists())
+
+
+class ContactAPITests(TestCase):
+    def test_public_contact_endpoint_rejects_short_messages_and_saves_valid_ones(self):
+        client = APIClient()
+        payload = {
+            "name": "Visitor",
+            "email": "visitor@example.com",
+            "message": "Too short",
+        }
+
+        rejected = client.post("/api/contact/", payload, format="json")
+
+        self.assertEqual(rejected.status_code, 400)
+        self.assertEqual(Contact.objects.count(), 0)
+
+        payload["message"] = "A message long enough to submit."
+        accepted = client.post("/api/contact/", payload, format="json")
+
+        self.assertEqual(accepted.status_code, 201)
+        self.assertEqual(Contact.objects.get().message, payload["message"])
