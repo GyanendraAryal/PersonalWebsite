@@ -11,8 +11,8 @@ DEBUG = config("DEBUG", default="False", cast=bool)
 # ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv(), default='127.0.0.1,localhost,portfolio-backend-yima.onrender.com')
 ALLOWED_HOSTS = config(
     "ALLOWED_HOSTS",
-    cast=lambda v: [s.strip() for s in v.split(",")],
-    default="localhost,127.0.0.1,portfolio-backend-yima.onrender.com",
+    default="localhost,127.0.0.1,personalwebsite-i8vv.onrender.com",
+    cast=Csv(),
 )
 INSTALLED_APPS = [
     "django.contrib.admin",
