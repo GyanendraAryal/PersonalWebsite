@@ -1,245 +1,220 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { ArrowRight } from 'lucide-react'
+
+/* Inline SVGs — lucide-react@1.x doesn't include social brand icons */
+const GitHubIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <path d="M12 .5C5.65.5.5 5.65.5 12a11.5 11.5 0 0 0 8 10.95c.6.1.82-.26.82-.58v-2.17c-3.26.71-3.95-1.57-3.95-1.57-.55-1.4-1.35-1.77-1.35-1.77-1.1-.75.08-.73.08-.73 1.22.09 1.86 1.25 1.86 1.25 1.08 1.86 2.84 1.32 3.53 1 .1-.79.42-1.32.76-1.62-2.6-.3-5.34-1.3-5.34-5.8 0-1.28.46-2.33 1.22-3.15-.12-.3-.53-1.52.12-3.16 0 0 1-.32 3.3 1.2a11.4 11.4 0 0 1 6 0c2.3-1.52 3.3-1.2 3.3-1.2.65 1.64.24 2.86.12 3.16.76.82 1.22 1.87 1.22 3.15 0 4.51-2.74 5.5-5.35 5.8.43.37.81 1.1.81 2.22v3.3c0 .32.22.69.83.57A11.5 11.5 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5z" />
+  </svg>
+)
+const LinkedInIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <path d="M4.98 3.5C4.98 4.88 3.86 6 2.48 6S0 4.88 0 3.5 1.12 1 2.48 1s2.5 1.12 2.5 2.5zM.5 8h4V24h-4V8zm7.5 0h3.8v2.16h.05c.53-1 1.84-2.16 3.8-2.16 4.07 0 4.82 2.68 4.82 6.16V24h-4v-7.1c0-1.7-.03-3.88-2.37-3.88-2.37 0-2.73 1.85-2.73 3.76V24h-4V8z" />
+  </svg>
+)
 import useTypingAnimation from '../Hooks/useTypingAnimation'
 import { getImages, getImageUrl } from '../api'
 import heroImg from '../assets/heroImg.png'
 import heroImg1 from '../assets/heroImg1.png'
 
-const words = [
-  'Modern Web Experiences.',
-  'Scalable MERN Apps.',
-  'Clean, Fast UIs.',
-  'Real-World Products.',
+const WORDS = [
+  'Full‑Stack Developer.',
+  'React Specialist.',
+  'Django API Engineer.',
+  'Clean UI Builder.',
 ]
 
-// Fallback hero images when API is unavailable
-const fallbackHeroImages = [
-  { id: 'fallback-1', title: 'Portfolio Hero', image_url: heroImg },
-  { id: 'fallback-2', title: 'Portfolio Hero Alt', image_url: heroImg1 },
+const FALLBACK_IMAGES = [
+  { id: 'fb-1', title: 'Hero', image_url: heroImg },
+  { id: 'fb-2', title: 'Hero Alt', image_url: heroImg1 },
 ]
 
-const HeroSlider = () => {
-  const [slides, setSlides] = useState([])
-  const [currentIndex, setCurrentIndex] = useState(0)
-  const [status, setStatus] = useState('loading') // loading | ready | empty | error
-  const [imgError, setImgError] = useState(false)
+export default function HeroSlider() {
+  const [slides, setSlides]       = useState([])
+  const [idx, setIdx]             = useState(0)
+  const [status, setStatus]       = useState('loading')
+  const [imgError, setImgError]   = useState(false)
 
+  /* ── Fetch hero images ───────────────────────────── */
   useEffect(() => {
-    let cancelled = false
-
-    const fetchHeroData = async () => {
-      setStatus('loading')
-      setSlides([])
-      setCurrentIndex(0)
-
-      try {
-        const res = await getImages('hero')
-
-        if (cancelled) return
-
-        const raw = res.data
-        const withUrl = raw.filter((item) => getImageUrl(item))
-
-        console.log('[HeroSlider] GET /api/images/?category=hero', {
-          httpStatus: res.status,
-          isArray: Array.isArray(raw),
-          rawCount: raw.length,
-          validCount: withUrl.length,
-          firstItem: raw[0] ?? null,
-          firstUrl: withUrl[0] ? getImageUrl(withUrl[0]) : null,
-        })
-
-        if (raw.length > 0 && withUrl.length === 0) {
-          console.warn(
-            '[HeroSlider] API returned items but none had image_url/image/url:',
-            raw
-          )
-        }
-
-        // Use API images if available, otherwise fallback to local images
-        const imagesToUse = withUrl.length > 0 ? withUrl : fallbackHeroImages
-        setSlides(imagesToUse)
-        setCurrentIndex(0)
+    let dead = false
+    setStatus('loading')
+    getImages('hero')
+      .then((res) => {
+        if (dead) return
+        const valid = res.data.filter(getImageUrl)
+        setSlides(valid.length > 0 ? valid : FALLBACK_IMAGES)
         setStatus('ready')
-        
-        if (withUrl.length === 0) {
-          console.log('[HeroSlider] Using fallback local images')
-        }
-      } catch (error) {
-        console.error('[HeroSlider] Error fetching hero images:', error)
-        if (!cancelled) {
-          // On API failure, use fallback images
-          console.log('[HeroSlider] API failed, using fallback local images')
-          setSlides(fallbackHeroImages)
-          setStatus('ready')
-        }
-      }
-    }
-
-    fetchHeroData()
-    return () => {
-      cancelled = true
-    }
+      })
+      .catch(() => {
+        if (!dead) { setSlides(FALLBACK_IMAGES); setStatus('ready') }
+      })
+    return () => { dead = true }
   }, [])
 
+  /* ── Auto-rotate slides ──────────────────────────── */
   useEffect(() => {
-    if (slides.length === 0) return
-
-    const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % slides.length)
-    }, 3000)
-
-    return () => clearInterval(interval)
+    if (slides.length <= 1) return
+    const t = setInterval(() => setIdx((p) => (p + 1) % slides.length), 4000)
+    return () => clearInterval(t)
   }, [slides.length])
 
-  const safeIndex = slides.length
-    ? Math.min(currentIndex, slides.length - 1)
-    : 0
+  const safeIdx    = slides.length ? Math.min(idx, slides.length - 1) : 0
+  const activeSlide = slides[safeIdx] ?? null
+  const imageSrc    = getImageUrl(activeSlide)
 
-  const activeSlide = slides[safeIndex] ?? null
-  const imageSrc = getImageUrl(activeSlide)
+  useEffect(() => { setImgError(false) }, [imageSrc])
 
-  useEffect(() => {
-    setImgError(false)
-  }, [imageSrc, safeIndex])
-
-  const typed = useTypingAnimation(words, {
-    typingSpeed: 80,
-    deletingSpeed: 50,
-    pauseDelay: 2000,
+  /* ── Typing animation ────────────────────────────── */
+  const typed = useTypingAnimation(WORDS, {
+    typingSpeed: 70,
+    deletingSpeed: 45,
+    pauseDelay: 2200,
   })
 
+  /* ── Image block ─────────────────────────────────── */
   const imageBlock = useMemo(() => {
-    if (status === 'loading') {
-      return (
-        <div
-          className="flex h-[280px] w-full max-w-[700px] items-center justify-center rounded-2xl border border-gray-800 bg-gray-900/50 sm:h-[360px]"
-          aria-busy="true"
-        >
-          <p className="text-sm font-medium tracking-wide text-gray-400 animate-pulse">
-            Loading hero images…
-          </p>
-        </div>
-      )
-    }
+    const placeholder = (content) => (
+      <div className="flex h-[300px] w-full max-w-[520px] items-center justify-center rounded-xl border border-white/8 bg-white/3 lg:h-[420px]">
+        {content}
+      </div>
+    )
 
-    if (status === 'error') {
-      return (
-        <div className="flex h-[280px] w-full max-w-[700px] flex-col items-center justify-center gap-2 rounded-2xl border border-red-900/50 bg-red-950/20 px-6 text-center sm:h-[360px]">
-          <p className="text-sm font-medium text-red-400">Could not load hero images</p>
-          <p className="text-xs text-gray-500">
-            Check the API is running and CORS allows {import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api'}
-          </p>
-        </div>
-      )
-    }
+    if (status === 'loading') return placeholder(
+      <p className="text-xs text-zinc-500 animate-pulse">Loading…</p>
+    )
 
-    if (status === 'empty' || !activeSlide || !imageSrc) {
-      return (
-        <div className="flex h-[280px] w-full max-w-[700px] flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-gray-700 bg-gray-900/40 px-6 text-center sm:h-[360px]">
-          <p className="text-sm font-medium text-gray-300">No hero images yet</p>
-          <p className="text-xs text-gray-500">
-            Upload images with category &quot;hero&quot; in the admin panel.
-          </p>
-        </div>
-      )
-    }
-
-    if (imgError) {
-      return (
-        <div className="flex h-[280px] w-full max-w-[700px] flex-col items-center justify-center gap-2 rounded-2xl border border-amber-900/50 bg-amber-950/20 px-6 text-center sm:h-[360px]">
-          <p className="text-sm font-medium text-amber-400">Image failed to load</p>
-          <p className="text-xs text-gray-500 break-all">{imageSrc}</p>
-        </div>
-      )
-    }
+    if (!activeSlide || !imageSrc || imgError) return placeholder(
+      <p className="text-xs text-zinc-500">{imgError ? 'Image failed to load' : 'No hero image'}</p>
+    )
 
     return (
       <img
-        key={`${activeSlide.id ?? safeIndex}-${imageSrc}`}
-        className="h-auto w-full max-w-[700px] object-contain drop-shadow-[0_20px_60px_rgba(0,0,0,0.8)] animate-fade-in"
+        key={`${safeIdx}-${imageSrc}`}
         src={imageSrc}
-        alt={activeSlide.title || 'Hero showcase'}
+        alt={activeSlide.title || 'Hero'}
+        className="h-auto w-full max-w-[520px] rounded-xl object-contain animate-fade-in drop-shadow-[0_16px_48px_rgba(0,0,0,0.7)]"
         loading="eager"
         decoding="async"
-        onError={() => {
-          console.warn('[HeroSlider] img onError — URL:', imageSrc)
-          setImgError(true)
-        }}
+        onError={() => setImgError(true)}
       />
     )
-  }, [status, activeSlide, imageSrc, safeIndex, imgError])
+  }, [status, activeSlide, imageSrc, safeIdx, imgError])
 
   return (
-    <div className="relative min-h-screen w-full overflow-hidden bg-gradient-to-br from-gray-900 via-black to-slate-900">
-      {/* Enhanced Background Effects */}
-      <div className="absolute inset-0">
-        <div className="absolute top-20 left-10 h-72 w-72 rounded-full bg-orange-500/10 blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-20 right-10 h-96 w-96 rounded-full bg-purple-500/10 blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute top-1/2 left-1/2 h-40 w-40 -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-500/10 blur-2xl animate-pulse delay-500"></div>
-      </div>
+    <section
+      aria-label="Hero — developer introduction"
+      className="min-h-screen bg-[#0e0e10] flex flex-col justify-center pt-14"
+    >
+      <div className="section-container w-full">
+        <div className="flex flex-col-reverse gap-12 items-center py-20 lg:flex-row lg:justify-between lg:gap-16 lg:py-28">
 
-      {/* Animated grid pattern */}
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:100px_100px] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_0%,#000_70%,transparent_110%)]"></div>
+          {/* ── Text column ───────────────────────────── */}
+          <div className="w-full max-w-2xl text-center lg:text-left lg:flex-1">
 
-      <div className="relative z-10 mx-auto flex max-w-7xl flex-col-reverse items-center justify-between px-4 py-20 sm:px-6 lg:flex-row lg:px-8 min-h-screen">
-        <div className="mt-8 flex w-full flex-col justify-center text-center lg:mt-0 lg:w-1/2 lg:text-left">
-          {/* Enhanced Badge */}
-          <div className="mb-6 inline-flex items-center justify-center lg:justify-start">
-            <span className="rounded-full bg-gradient-to-r from-orange-500/20 to-purple-500/20 backdrop-blur-sm border border-orange-500/30 px-4 py-2 text-xs font-semibold tracking-[3px] text-orange-300 uppercase animate-fade-in">
-              Full Stack Developer • React • Node.js
-            </span>
-          </div>
+            {/* Label */}
+            <p className="section-label mb-3 animate-fade-up">
+              Available for work
+            </p>
 
-          {/* Enhanced Main Title */}
-          <h1 className="text-4xl font-bold leading-tight text-white sm:text-5xl md:text-6xl lg:text-7xl">
-            <span className="inline-block animate-fade-in">Building</span>{' '}
-            <span className="inline-block bg-gradient-to-r from-orange-400 via-orange-500 to-orange-600 bg-clip-text text-transparent animate-gradient bg-[length:200%_200%]">
-              {typed}
-              <span className="animate-pulse text-orange-400">|</span>
-            </span>
-          </h1>
+            {/* Headline */}
+            <h1 className="text-4xl font-bold leading-[1.12] text-white sm:text-5xl lg:text-[3.5rem] animate-fade-up [animation-delay:80ms]">
+              I build{' '}
+              <br className="hidden sm:block" />
+              <span className="text-orange-500 inline-flex items-baseline h-[1.15em] overflow-hidden">
+                {typed}
+                <span
+                  className="ml-[1px] w-[2px] h-[0.9em] self-center bg-orange-500 animate-pulse inline-block"
+                  aria-hidden="true"
+                />
+              </span>
+            </h1>
 
-          {/* Enhanced Description */}
-          <p className="mx-auto mt-6 max-w-xl text-base leading-8 text-gray-300 sm:text-lg md:text-xl lg:mx-0 animate-fade-in delay-300">
-            I craft <span className="font-semibold text-white bg-gradient-to-r from-white to-gray-200 bg-clip-text">fast, scalable web apps</span> with{' '}
-            <span className="font-semibold text-orange-400">React, Node.js & MongoDB</span> — turning
-            real-world problems into{' '}
-            <span className="font-semibold text-white bg-gradient-to-r from-white to-gray-200 bg-clip-text">clean, intuitive products</span> that users
-            actually enjoy.
-          </p>
+            {/* Body */}
+            <p className="mt-6 text-[0.9375rem] leading-7 text-zinc-400 max-w-xl mx-auto lg:mx-0 animate-fade-up [animation-delay:160ms]">
+              I craft modern web applications with{' '}
+              <span className="text-zinc-200 font-medium">React</span> and{' '}
+              <span className="text-zinc-200 font-medium">TypeScript</span>, build backend APIs
+              with <span className="text-zinc-200 font-medium">Django REST Framework</span>,
+              use <span className="text-zinc-200 font-medium">Docker</span> for containerized
+              development, and write professional documents with{' '}
+              <span className="text-zinc-200 font-medium">LaTeX</span>.
+            </p>
 
-          {/* Enhanced CTA Buttons */}
-          <div className="mt-10 flex flex-col justify-center gap-4 sm:flex-row lg:justify-start animate-fade-in delay-500">
-            <Link
-              to="/work"
-              className="group relative overflow-hidden rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 px-8 py-4 font-semibold text-white shadow-lg shadow-orange-500/25 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-orange-500/40"
-            >
-              <span className="relative z-10">View Projects</span>
-              <div className="absolute inset-0 bg-gradient-to-r from-orange-600 to-orange-700 opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
-            </Link>
-            <Link
-              to="/contact"
-              className="group rounded-xl border border-gray-600/50 bg-gray-800/30 backdrop-blur-sm px-8 py-4 font-semibold text-white transition-all duration-300 hover:scale-105 hover:border-orange-500/50 hover:bg-gray-700/40 hover:text-orange-300"
-            >
-              <span className="relative z-10">Get In Touch</span>
-            </Link>
-          </div>
-        </div>
+            {/* CTAs */}
+            <div className="mt-9 flex flex-wrap justify-center gap-3 lg:justify-start animate-fade-up [animation-delay:240ms]">
+              <Link to="/work" className="btn-primary">
+                View my work <ArrowRight className="w-4 h-4" />
+              </Link>
+              <Link to="/contact" className="btn-secondary">
+                Contact me
+              </Link>
+            </div>
 
-        {/* Enhanced Image Container */}
-        <div className="relative flex w-full items-center justify-center lg:w-1/2">
-          <div className="relative">
-            {/* Image glow effect */}
-            <div className="absolute -inset-4 rounded-3xl bg-gradient-to-r from-orange-500/20 to-purple-500/20 blur-2xl"></div>
-            <div className="relative rounded-3xl border border-gray-700/50 bg-gray-800/20 backdrop-blur-sm p-2">
-              {imageBlock}
+            {/* Social links */}
+            <div className="mt-8 flex justify-center gap-4 lg:justify-start animate-fade-up [animation-delay:320ms]">
+              <a
+                href="https://github.com/GyanendraAryal"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="GitHub profile"
+                className="flex items-center gap-2 text-zinc-500 hover:text-white text-sm transition-colors"
+              >
+                <GitHubIcon /> GitHub
+              </a>
+              <span className="text-zinc-700" aria-hidden>·</span>
+              <a
+                href="https://www.linkedin.com/in/gyanendra-aryal/"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="LinkedIn profile"
+                className="flex items-center gap-2 text-zinc-500 hover:text-white text-sm transition-colors"
+              >
+                <LinkedInIcon /> LinkedIn
+              </a>
             </div>
           </div>
+
+          {/* ── Image column ──────────────────────────── */}
+          <div className="w-full lg:flex-1 flex justify-center lg:justify-end animate-fade-in [animation-delay:200ms]">
+            <div className="relative">
+              {/* Subtle orange glow behind image */}
+              <div
+                className="absolute -inset-6 rounded-2xl bg-orange-500/8 blur-2xl pointer-events-none"
+                aria-hidden="true"
+              />
+              {imageBlock}
+
+              {/* Slide dots */}
+              {slides.length > 1 && (
+                <div className="absolute -bottom-5 left-1/2 -translate-x-1/2 flex gap-1.5" role="tablist" aria-label="Slide navigation">
+                  {slides.map((_, i) => (
+                    <button
+                      key={i}
+                      role="tab"
+                      aria-selected={i === safeIdx}
+                      onClick={() => setIdx(i)}
+                      className={`h-1.5 rounded-full transition-all duration-300 ${
+                        i === safeIdx ? 'w-5 bg-orange-500' : 'w-1.5 bg-zinc-700 hover:bg-zinc-500'
+                      }`}
+                      aria-label={`Slide ${i + 1}`}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
         </div>
       </div>
-    </div>
+
+      {/* Subtle scroll indicator */}
+      <div className="hidden lg:flex justify-center pb-8 animate-bounce" aria-hidden="true">
+        <div className="w-5 h-8 rounded-full border border-zinc-700 flex items-start justify-center pt-1.5">
+          <div className="w-1 h-2 rounded-full bg-zinc-600" />
+        </div>
+      </div>
+    </section>
   )
 }
-
-export default HeroSlider
