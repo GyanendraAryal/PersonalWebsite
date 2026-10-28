@@ -159,10 +159,7 @@ export const getActiveResume = () =>
   api.get('/resume/')
 
 export const uploadResume = (formData, config = {}) =>
-  api.post('/resume/upload/', formData, {
-    headers: { 'Content-Type': 'multipart/form-data' },
-    ...config,
-  })
+  api.post('/resume/upload/', formData, config)
 
 export const deleteResume = (id) =>
   api.delete(`/resume/${id}/`)
