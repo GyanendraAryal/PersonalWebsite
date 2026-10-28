@@ -47,7 +47,11 @@ MIDDLEWARE = [
 CORS_ALLOWED_ORIGINS = config(
     "CORS_ALLOWED_ORIGINS",
     cast=Csv(),
-    default="http://localhost:5173,https://personal-website-nu-eight-22.vercel.app",
+    default=(
+        "http://localhost:5173,"
+        "https://personal-website-nu-eight-22.vercel.app,"
+        "https://personal-website-nwbx.vercel.app"
+    ),
 )
 
 CORS_ALLOW_CREDENTIALS = True
@@ -56,7 +60,11 @@ CORS_ALLOW_CREDENTIALS = True
 CSRF_TRUSTED_ORIGINS = config(
     "CSRF_TRUSTED_ORIGINS",
     cast=Csv(),
-    default="http://localhost:5173,https://personal-website-nu-eight-22.vercel.app",
+    default=(
+        "http://localhost:5173,"
+        "https://personal-website-nu-eight-22.vercel.app,"
+        "https://personal-website-nwbx.vercel.app"
+    ),
 )
 # ── CLOUDINARY ────────────────────────────────────────────────────────────────
 CLOUDINARY_STORAGE = {

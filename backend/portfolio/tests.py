@@ -4,7 +4,7 @@ from unittest.mock import patch
 from cloudinary.exceptions import Error
 from django.contrib.auth.models import User
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.test import RequestFactory, TestCase
+from django.test import RequestFactory, TestCase, override_settings
 from rest_framework.test import APIClient
 
 from .admin import ResumeAdmin, ResumeAdminForm
@@ -77,6 +77,20 @@ class ResumeAdminTests(TestCase):
         self.assertEqual(client.get("/api/images/").status_code, 200)
         self.assertEqual(client.post("/api/images/", {}).status_code, 401)
         self.assertEqual(client.get("/api/contacts/").status_code, 401)
+
+    @override_settings(CORS_ALLOWED_ORIGINS=["https://personal-website-nwbx.vercel.app"])
+    def test_allowed_frontend_can_preflight_admin_login(self):
+        response = self.client.options(
+            "/api/token/",
+            HTTP_ORIGIN="https://personal-website-nwbx.vercel.app",
+            HTTP_ACCESS_CONTROL_REQUEST_METHOD="POST",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response["access-control-allow-origin"],
+            "https://personal-website-nwbx.vercel.app",
+        )
 
     @patch("portfolio.models.cloudinary.uploader.destroy")
     def test_staff_admin_can_manage_resume_api(self, destroy):

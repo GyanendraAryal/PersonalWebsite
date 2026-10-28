@@ -257,8 +257,8 @@ The interactive API documentation is available at `/api/schema/swagger-ui/` (Swa
 
 In `backend/.env` on Render:
 ```env
-CORS_ALLOWED_ORIGINS=https://your-frontend.vercel.app
-CSRF_TRUSTED_ORIGINS=https://your-frontend.vercel.app
+CORS_ALLOWED_ORIGINS=https://personal-website-nwbx.vercel.app
+CSRF_TRUSTED_ORIGINS=https://personal-website-nwbx.vercel.app
 ALLOWED_HOSTS=your-backend.onrender.com
 ```
 
