@@ -71,6 +71,78 @@ class ResumeAdminTests(TestCase):
         self.assertEqual(client.delete(f"/api/resume/{resume.pk}/").status_code, 401)
         self.assertTrue(Resume.objects.filter(pk=resume.pk).exists())
 
+    @patch("portfolio.serializers.cloudinary.uploader.upload")
+    def test_api_rejects_non_pdf_invalid_pdf_and_oversized_resume(self, upload):
+        admin_user = User.objects.create_superuser(
+            username="admin",
+            email="admin@example.com",
+            password="secure-test-password",
+        )
+        client = APIClient()
+        client.force_authenticate(user=admin_user)
+        invalid_uploads = (
+            SimpleUploadedFile("resume.txt", b"%PDF-1.7 sample", content_type="application/pdf"),
+            SimpleUploadedFile("resume.pdf", b"not a PDF", content_type="application/pdf"),
+            SimpleUploadedFile(
+                "resume.pdf",
+                b"%PDF-" + b"0" * (10 * 1024 * 1024),
+                content_type="application/pdf",
+            ),
+        )
+
+        for uploaded_file in invalid_uploads:
+            with self.subTest(filename=uploaded_file.name, size=uploaded_file.size):
+                response = client.post(
+                    "/api/resume/upload/",
+                    {"title": "My resume", "file": uploaded_file},
+                    format="multipart",
+                )
+                self.assertEqual(response.status_code, 400)
+                self.assertIn("file", response.json())
+
+        upload.assert_not_called()
+        self.assertEqual(Resume.objects.count(), 0)
+
+    @patch("portfolio.serializers.cloudinary.uploader.upload")
+    def test_api_upload_accepts_valid_pdf_and_replaces_active_resume(self, upload):
+        admin_user = User.objects.create_superuser(
+            username="admin",
+            email="admin@example.com",
+            password="secure-test-password",
+        )
+        previous = Resume.objects.create(
+            title="Previous resume",
+            file_url="https://res.cloudinary.com/demo/raw/upload/previous.pdf",
+            public_id="portfolio/resumes/previous",
+        )
+        upload.return_value = {
+            "secure_url": "https://res.cloudinary.com/demo/raw/upload/new.pdf",
+            "public_id": "portfolio/resumes/new",
+        }
+        client = APIClient()
+        client.force_authenticate(user=admin_user)
+
+        response = client.post(
+            "/api/resume/upload/",
+            {
+                "title": "New resume",
+                "file": SimpleUploadedFile(
+                    "resume.pdf",
+                    b"%PDF-1.7 valid sample",
+                    content_type="application/pdf",
+                ),
+            },
+            format="multipart",
+        )
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.json()["file_url"], upload.return_value["secure_url"])
+        self.assertTrue(response.json()["is_active"])
+        previous.refresh_from_db()
+        self.assertFalse(previous.is_active)
+        upload.assert_called_once()
+        self.assertEqual(upload.call_args.kwargs["resource_type"], "raw")
+
     def test_public_image_reads_work_but_admin_data_is_protected(self):
         client = APIClient()
 

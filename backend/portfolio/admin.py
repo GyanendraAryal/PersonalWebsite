@@ -1,5 +1,3 @@
-from pathlib import Path
-
 import cloudinary.exceptions
 import cloudinary.uploader
 from django.contrib import admin
@@ -8,6 +6,7 @@ from django.core.exceptions import ValidationError
 from django.utils.html import format_html
 
 from .models import PortfolioImage, Resume, Contact
+from .validators import get_resume_file_error
 
 
 @admin.register(PortfolioImage)
@@ -39,13 +38,9 @@ class ResumeAdminForm(forms.ModelForm):
         if uploaded_file is None:
             return None
 
-        if Path(uploaded_file.name).suffix.lower() != ".pdf":
-            raise ValidationError("Only PDF files are allowed.")
-        if uploaded_file.size > 10 * 1024 * 1024:
-            raise ValidationError("PDF files must be 10 MB or smaller.")
-        if uploaded_file.read(5) != b"%PDF-":
-            raise ValidationError("The uploaded file is not a valid PDF.")
-        uploaded_file.seek(0)
+        error = get_resume_file_error(uploaded_file)
+        if error:
+            raise ValidationError(error)
         return uploaded_file
 
     def clean(self):

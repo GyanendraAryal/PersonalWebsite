@@ -133,9 +133,7 @@ export default function Footer() {
             © {new Date().getFullYear()} {profile?.display_name}. All rights
             reserved.
           </p>
-          <p className="text-xs text-zinc-500">
-            Built with React + Tailwind CSS
-          </p>
+          
         </div>
       </div>
     </footer>

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { CheckCircle2, Download, ExternalLink, FileText, Trash2 } from 'lucide-react'
+import { getApiErrorMessage } from '../../api'
 import { useResume } from '../hooks/useResume'
 import { useToast } from '../hooks/useToast'
 import Card from '../components/ui/Card'
@@ -22,6 +23,10 @@ export default function ResumePage() {
       toast.error('Only PDF files are allowed.')
       return
     }
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error('PDF files must be 10 MB or smaller.')
+      return
+    }
     const fd = new FormData()
     fd.append('file',      file)
     fd.append('title',     title || file.name.replace(/\.pdf$/i, ''))
@@ -33,7 +38,7 @@ export default function ResumePage() {
       setTitle('')
       toast.success(resume ? 'Resume replaced successfully' : 'Resume uploaded')
     } catch (err) {
-      toast.error(err.response?.data?.file?.[0] || 'Upload failed.')
+      toast.error(getApiErrorMessage(err, 'Resume upload failed.'))
     } finally {
       setUploading(false)
       setProgress(0)
@@ -45,8 +50,8 @@ export default function ResumePage() {
     try {
       await remove()
       toast.success('Resume deleted')
-    } catch {
-      toast.error('Delete failed.')
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Resume deletion failed.'))
     }
   }
 
