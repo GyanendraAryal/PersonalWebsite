@@ -44,19 +44,20 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-# ── CORS ──────────────────────────────────────────────────────────────────────
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
-    "https://personal-website-nu-eight-22.vercel.app",
-]
+CORS_ALLOWED_ORIGINS = config(
+    "CORS_ALLOWED_ORIGINS",
+    cast=Csv(),
+    default="http://localhost:5173,https://personal-website-nu-eight-22.vercel.app",
+)
+
 CORS_ALLOW_CREDENTIALS = True
 
-# ── CSRF ──────────────────────────────────────────────────────────────────────
-CSRF_TRUSTED_ORIGINS = [
-    "http://localhost:5173",
-    "https://personal-website-nu-eight-22.vercel.app",
-]
 
+CSRF_TRUSTED_ORIGINS = config(
+    "CSRF_TRUSTED_ORIGINS",
+    cast=Csv(),
+    default="http://localhost:5173,https://personal-website-nu-eight-22.vercel.app",
+)
 # ── CLOUDINARY ────────────────────────────────────────────────────────────────
 CLOUDINARY_STORAGE = {
     "CLOUD_NAME": config("CLOUDINARY_CLOUD_NAME"),
