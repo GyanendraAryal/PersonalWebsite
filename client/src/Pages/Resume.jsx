@@ -1,155 +1,165 @@
 import { useEffect, useState } from 'react'
+import { Download, ExternalLink, Loader2 } from 'lucide-react'
 import { getActiveResume } from '../api'
 
-const skills = [
-  'JavaScript',
-  'React',
-  'Node.js',
-  'Express',
-  'MongoDB',
-  'Tailwind CSS',
-  'JWT Auth',
-  'REST APIs',
-  'Cloudinary',
-  'Git',
+/* ── Actual skill set (matches Skills section) ─────────────────── */
+const SKILLS = [
+  // Languages
+  'JavaScript', 'TypeScript', 'Python',
+  // Frontend
+  'React', 'Tailwind CSS', 'Responsive UI',
+  // Backend
+  'Django', 'Django REST Framework', 'REST API Design',
+  // DevOps
+  'Docker', 'Git', 'GitHub',
+  // Docs
+  'LaTeX', 'Overleaf',
 ]
 
-const projects = [
+/* ── Project highlight list ────────────────────────────────────── */
+const PROJECTS = [
   {
     title: 'EyeExpress',
-    desc: 'Full-stack eyewear e-commerce with admin dashboard and payments.',
+    desc: 'Full-stack eyewear e-commerce with Redux auth, dynamic categories, and Khalti checkout.',
+    stack: ['React', 'Node.js', 'MongoDB'],
   },
   {
     title: 'CashYourPhone',
-    desc: 'Used phone marketplace with authentication and image uploads.',
+    desc: 'Mobile selling platform with instant valuation, authentication, and secure request handling.',
+    stack: ['React', 'Node.js', 'MongoDB'],
   },
   {
-    title: 'AirPlus',
-    desc: 'Travel & trekking platform with booking and admin system.',
+    title: 'Portfolio CMS',
+    desc: 'Dynamic portfolio site with a React frontend, Django REST API, and Cloudinary media storage.',
+    stack: ['React', 'Django', 'PostgreSQL', 'Cloudinary'],
   },
 ]
 
-const Resume = () => {
+export default function Resume() {
   const [resumeUrl, setResumeUrl] = useState('/Resume.pdf')
+  const [loadingResume, setLoadingResume] = useState(true)
 
   useEffect(() => {
     getActiveResume()
       .then((res) => {
-        if (res.data?.file_url) {
-          setResumeUrl(res.data.file_url)
-        }
+        if (res.data?.file_url) setResumeUrl(res.data.file_url)
       })
       .catch(() => {})
+      .finally(() => setLoadingResume(false))
   }, [])
 
   return (
-    <section className="min-h-screen bg-[#09090b] text-zinc-100 px-6 py-16">
-      <div className="max-w-3xl mx-auto">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-16">
+    <main className="min-h-screen bg-[#09090b] pt-14 text-zinc-100">
+      <div className="section-container py-20 max-w-3xl">
+
+        {/* ── Header ────────────────────────────────────── */}
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6 mb-14">
           <div>
-            <p className="text-[11px] tracking-[0.18em] uppercase text-zinc-500 mb-3">
-              Available for work
-            </p>
-
-            <h1 className="font-syne text-5xl font-bold leading-[1.05] text-zinc-50">
-              Full Stack
+            <p className="section-label mb-3">Available for work</p>
+            <h1 className="text-4xl font-bold leading-[1.08] sm:text-5xl">
+              Full-Stack
               <br />
-              <span className="text-orange-500">MERN Developer</span>
+              <span className="text-orange-500">Developer</span>
             </h1>
-
-            <p className="mt-4 text-[15px] font-light text-zinc-400 leading-relaxed max-w-md">
-              Backend-focused developer building scalable APIs, secure auth
-              systems, and modern React applications with clean architecture.
+            <p className="mt-4 text-[0.9375rem] text-zinc-400 leading-relaxed max-w-md">
+              React + TypeScript frontend, Django REST Framework backend,
+              containerized with Docker. Clean architecture, maintainable code.
             </p>
           </div>
 
-          <a
-            href={resumeUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="shrink-0 inline-flex items-center gap-2 px-5 py-2.5 bg-orange-500 hover:bg-orange-600 text-white rounded-lg text-sm font-medium transition-colors"
-          >
-            <svg
-              className="w-4 h-4"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-              <polyline points="7 10 12 15 17 10" />
-              <line x1="12" y1="15" x2="12" y2="3" />
-            </svg>
-            Download CV
-          </a>
+          <div className="flex flex-col sm:items-end gap-2 shrink-0">
+            {loadingResume ? (
+              <div className="flex items-center gap-2 px-4 py-2.5 rounded-lg border border-white/10 text-sm text-zinc-500">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Loading…
+              </div>
+            ) : (
+              <>
+                <a
+                  href={resumeUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-primary"
+                  aria-label="Download resume PDF"
+                >
+                  <Download className="w-4 h-4" />
+                  Download CV
+                </a>
+                <a
+                  href={resumeUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1 text-xs text-zinc-600 hover:text-zinc-400 transition-colors"
+                >
+                  <ExternalLink className="w-3 h-3" />
+                  View PDF
+                </a>
+              </>
+            )}
+          </div>
         </div>
 
-        {/* Divider */}
-        <div className="h-px bg-gradient-to-r from-zinc-900 via-zinc-700 to-zinc-900 mb-16" />
+        {/* ── Divider ────────────────────────────────────── */}
+        <div className="h-px bg-gradient-to-r from-zinc-900 via-zinc-700/60 to-zinc-900 mb-14" />
 
-        {/* Skills */}
-        <div className="mb-16">
-          <p className="text-[11px] tracking-[0.18em] uppercase text-zinc-600 mb-5">
+        {/* ── Skills ─────────────────────────────────────── */}
+        <section aria-labelledby="resume-skills" className="mb-14">
+          <p className="text-[0.6875rem] tracking-widest uppercase text-zinc-600 font-semibold mb-5" id="resume-skills">
             Skills
           </p>
-
-          <div className="flex flex-wrap gap-2">
-            {skills.map((skill) => (
+          <div className="flex flex-wrap gap-2" role="list">
+            {SKILLS.map((s) => (
               <span
-                key={skill}
-                className="px-3.5 py-1.5 rounded-full border border-zinc-800 bg-[#111113] text-zinc-400 text-[13px] hover:border-orange-500 hover:text-zinc-50 transition-colors"
+                key={s}
+                role="listitem"
+                className="px-3 py-1.5 rounded-md border border-zinc-800 bg-[#111113] text-zinc-400 text-[0.8125rem] hover:border-orange-500/50 hover:text-zinc-200 transition-colors cursor-default"
               >
-                {skill}
+                {s}
               </span>
             ))}
           </div>
-        </div>
+        </section>
 
-        {/* Projects */}
-        <div>
-          <p className="text-[11px] tracking-[0.18em] uppercase text-zinc-600 mb-5">
+        {/* ── Projects ───────────────────────────────────── */}
+        <section aria-labelledby="resume-projects">
+          <p className="text-[0.6875rem] tracking-widest uppercase text-zinc-600 font-semibold mb-5" id="resume-projects">
             Projects
           </p>
-
           <div className="flex flex-col gap-3">
-            {projects.map((project, index) => (
+            {PROJECTS.map((p, i) => (
               <div
-                key={project.title}
-                className="flex items-center justify-between gap-4 p-5 rounded-xl border border-zinc-900 bg-[#111113] hover:border-zinc-800 transition-colors"
+                key={p.title}
+                className="flex items-start justify-between gap-4 p-5 rounded-xl border border-zinc-900 bg-[#111113] hover:border-zinc-800 transition-colors"
               >
-                <div>
-                  <h3 className="font-syne text-base font-medium text-zinc-50 mb-1">
-                    {project.title}
-                  </h3>
-
-                  <p className="text-[13px] font-light text-zinc-500 leading-relaxed">
-                    {project.desc}
-                  </p>
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-sm font-semibold text-zinc-100 mb-1">{p.title}</h3>
+                  <p className="text-[0.8125rem] text-zinc-500 leading-relaxed mb-2">{p.desc}</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {p.stack.map((t) => (
+                      <span key={t} className="px-1.5 py-0.5 rounded text-[0.6875rem] text-zinc-600 bg-zinc-900/80 border border-zinc-800">
+                        {t}
+                      </span>
+                    ))}
+                  </div>
                 </div>
-
-                <span className="shrink-0 font-syne text-[11px] text-zinc-700 self-start pt-0.5">
-                  {String(index + 1).padStart(2, '0')}
+                <span className="shrink-0 text-[0.6875rem] text-zinc-700 font-medium pt-0.5">
+                  {String(i + 1).padStart(2, '0')}
                 </span>
               </div>
             ))}
           </div>
-        </div>
+        </section>
 
-        {/* Footer */}
-        <div className="mt-16 pt-6 border-t border-zinc-900 flex items-center justify-between">
-          <p className="text-xs text-zinc-700 tracking-wide">
-            <span className="inline-block w-1.5 h-1.5 rounded-full bg-orange-500 mr-2 mb-px" />
-            React + Tailwind CSS
+        {/* ── Footer note ────────────────────────────────── */}
+        <div className="mt-14 pt-6 border-t border-zinc-900 flex items-center justify-between">
+          <p className="text-xs text-zinc-700 flex items-center gap-2">
+            <span className="inline-block w-1.5 h-1.5 rounded-full bg-orange-500" />
+            React · Django · TypeScript · Docker · LaTeX
           </p>
-
           <p className="text-xs text-zinc-700">2025</p>
         </div>
+
       </div>
-    </section>
+    </main>
   )
 }
-
-export default Resume
