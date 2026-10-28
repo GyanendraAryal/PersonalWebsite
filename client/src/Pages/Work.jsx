@@ -1,99 +1,161 @@
-import { useState, useEffect } from "react";
-import ProjectCard from "../Components/ProjectCard";
+import { useState, useEffect } from 'react'
+import { ArrowUpRight, GitBranch, Loader2 } from 'lucide-react'
 
-const Work = () => {
-  const [projects, setProjects] = useState([]);
-
-  useEffect(() => {
-    const fetchProjects = async () => {
-      try {
-        const res = await fetch("/works.json");
-        const data = await res.json();
-        setProjects(data);
-      } catch (error) {
-        console.error("Failed to load projects:", error);
-      }
-    };
-
-    fetchProjects();
-  }, []);
+function ProjectCard({ project, index }) {
+  const [imgError, setImgError] = useState(false)
 
   return (
-    <section className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-900 via-gray-900 to-black px-4 py-20 sm:px-6 lg:px-8">
-
-      {/* Enhanced Background Effects */}
-      <div className="absolute inset-0">
-        <div className="absolute top-1/4 left-10 h-80 w-80 rounded-full bg-orange-500/8 blur-3xl animate-pulse" />
-        <div className="absolute bottom-1/4 right-10 h-96 w-96 rounded-full bg-purple-500/8 blur-3xl animate-pulse delay-1000" />
-        <div className="absolute top-3/4 left-1/3 h-60 w-60 rounded-full bg-cyan-500/8 blur-3xl animate-pulse delay-500" />
-      </div>
-
-      {/* Grid Pattern */}
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.01)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.01)_1px,transparent_1px)] bg-[size:60px_60px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_110%)]"></div>
-
-      <div className="relative z-10 mx-auto max-w-7xl">
-
-        {/* Enhanced Header */}
-        <div className="mx-auto mb-20 max-w-3xl text-center">
-          <div className="mb-6">
-            <span className="inline-flex items-center rounded-full bg-gradient-to-r from-orange-500/10 to-purple-500/10 border border-orange-500/20 px-4 py-2 text-sm font-medium text-orange-300 backdrop-blur-sm">
-              ✨ Featured Work
+    <article className="card card-hover group flex flex-col overflow-hidden h-full">
+      {/* Image */}
+      {project.image && !imgError ? (
+        <div className="relative h-44 overflow-hidden bg-[#1a1a1c] shrink-0">
+          <img
+            src={project.image}
+            alt={project.title}
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            onError={() => setImgError(true)}
+          />
+        </div>
+      ) : (
+        <div className="h-44 bg-[#1a1a1c] border-b border-white/6 flex items-center justify-center shrink-0">
+          <div className="w-10 h-10 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center">
+            <span className="text-xs font-bold text-orange-400">
+              {String(index + 1).padStart(2, '0')}
             </span>
           </div>
-
-          <h1 className="mb-6 text-5xl font-extrabold leading-tight text-white sm:text-6xl lg:text-7xl">
-            <span className="bg-gradient-to-r from-white via-gray-200 to-white bg-clip-text text-transparent">Featured</span>{" "}
-            <span className="bg-gradient-to-r from-orange-400 via-orange-500 to-orange-600 bg-clip-text text-transparent">
-              Projects
-            </span>
-          </h1>
-
-          <p className="text-lg leading-relaxed text-gray-300 sm:text-xl max-w-2xl mx-auto">
-            A curated collection of full-stack applications, responsive
-            interfaces, and backend systems I've designed and developed with modern technologies.
-          </p>
         </div>
+      )}
 
-        {/* Enhanced Projects Grid */}
-        <div
-          className={`
-    grid gap-8 justify-items-center
-    ${projects.length === 1
-              ? "grid-cols-1"
-              : projects.length === 2
-                ? "grid-cols-1 sm:grid-cols-2"
-                : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
-            }
-  `}
-        >
-          {projects.map((project, index) => (
-            <div
-              key={index}
-              className="group transform transition-all duration-500 hover:-translate-y-3 hover:scale-105"
-            >
-              <ProjectCard
-                project={project}
-                count={index + 1}
-              />
-            </div>
-          ))}
-        </div>
+      {/* Body */}
+      <div className="p-5 flex flex-col gap-3 flex-1">
+        {/* Tag */}
+        <p className="text-[0.625rem] font-semibold tracking-widest uppercase text-orange-500">
+          {project.tag}
+        </p>
 
-        {/* Enhanced Empty State */}
-        {projects.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-32 text-center">
-            <div className="relative mb-8">
-              <div className="h-16 w-16 rounded-full border-4 border-orange-500/20">
-                <div className="h-16 w-16 rounded-full border-t-4 border-orange-500 animate-spin"></div>
-              </div>
-            </div>
-            <h3 className="text-xl font-semibold text-white mb-2">Loading Projects</h3>
-            <p className="text-gray-400">Fetching the latest work...</p>
+        {/* Title */}
+        <h2 className="text-[0.9375rem] font-semibold text-white leading-snug">
+          {project.title}
+        </h2>
+
+        {/* Description */}
+        <p className="text-[0.8125rem] text-zinc-500 leading-relaxed flex-1">
+          {project.desc}
+        </p>
+
+        {/* Tech stack */}
+        {project.tech?.length > 0 && (
+          <div className="flex flex-wrap gap-1.5">
+            {project.tech.map((t) => (
+              <span
+                key={t}
+                className="px-2 py-0.5 rounded text-[0.6875rem] font-medium text-zinc-500 bg-white/[0.04] border border-white/6"
+              >
+                {t}
+              </span>
+            ))}
+          </div>
+        )}
+
+        {/* Links */}
+        {(project.live || project.repo) && (
+          <div className="flex items-center gap-2 pt-1">
+            {project.live && (
+              <a
+                href={project.live}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1 text-xs font-medium text-orange-500 px-2.5 py-1 rounded-md border border-orange-500/25 bg-orange-500/6 hover:bg-orange-500/15 transition-colors"
+              >
+                Live <ArrowUpRight className="w-3 h-3" />
+              </a>
+            )}
+            {project.repo && (
+              <a
+                href={project.repo}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1 text-xs font-medium text-zinc-500 px-2.5 py-1 rounded-md border border-white/8 hover:border-white/20 hover:text-zinc-300 transition-colors"
+              >
+                Code <GitBranch className="w-3 h-3" />
+              </a>
+            )}
           </div>
         )}
       </div>
-    </section>
-  );
-};
+    </article>
+  )
+}
 
-export default Work;
+export default function Work() {
+  const [projects, setProjects] = useState([])
+  const [status, setStatus]     = useState('loading')
+
+  useEffect(() => {
+    fetch('/works.json')
+      .then((r) => r.json())
+      .then((d) => { setProjects(d); setStatus('ready') })
+      .catch(() => setStatus('error'))
+  }, [])
+
+  return (
+    <main className="min-h-screen bg-[#0e0e10] pt-14">
+      <div className="section-container py-20">
+
+        {/* Header */}
+        <div className="mb-14 max-w-2xl">
+          <p className="section-label">Portfolio</p>
+          <h1 className="text-4xl font-bold text-white sm:text-5xl leading-tight">
+            Featured Projects
+          </h1>
+          <p className="mt-4 text-zinc-400 text-[0.9375rem] leading-7">
+            A selection of full-stack applications, responsive interfaces, and
+            backend systems I've designed and built.
+          </p>
+        </div>
+
+        {/* Loading */}
+        {status === 'loading' && (
+          <div className="flex items-center gap-3 text-zinc-500 text-sm">
+            <Loader2 className="w-4 h-4 animate-spin" />
+            Loading projects…
+          </div>
+        )}
+
+        {/* Error */}
+        {status === 'error' && (
+          <div className="rounded-xl border border-red-900/40 bg-red-950/20 px-6 py-10 text-center max-w-md">
+            <p className="text-sm text-red-400 font-medium">Failed to load projects</p>
+            <p className="text-xs text-zinc-500 mt-1">Check that /works.json is accessible.</p>
+          </div>
+        )}
+
+        {/* Empty */}
+        {status === 'ready' && projects.length === 0 && (
+          <div className="rounded-xl border border-dashed border-white/10 px-6 py-16 text-center max-w-md">
+            <p className="text-sm text-zinc-400 font-medium">No projects yet</p>
+            <p className="text-xs text-zinc-600 mt-1">Add entries to /public/works.json</p>
+          </div>
+        )}
+
+        {/* Grid */}
+        {status === 'ready' && projects.length > 0 && (
+          <div
+            className={`grid gap-5 items-start ${
+              projects.length === 1
+                ? 'grid-cols-1 max-w-sm'
+                : projects.length === 2
+                  ? 'grid-cols-1 sm:grid-cols-2 max-w-2xl'
+                  : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
+            }`}
+          >
+            {projects.map((p, i) => (
+              <ProjectCard key={i} project={p} index={i} />
+            ))}
+          </div>
+        )}
+
+      </div>
+    </main>
+  )
+}
