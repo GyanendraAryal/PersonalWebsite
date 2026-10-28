@@ -4,7 +4,7 @@ import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider } 
 import './index.css'
 import App from './App'
 import PageWrapper from './animate/PageWrapper'
-import ErrorBoundary from './components/ErrorBoundary'
+import ErrorBoundary from './Components/ErrorBoundary'
 import LoadingFallback from './Components/LoadingFallback'
 import { ThemeProvider } from './context/ThemeContext'
 
