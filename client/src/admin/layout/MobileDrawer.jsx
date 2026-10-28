@@ -1,26 +1,16 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { NavLink } from 'react-router-dom'
-import {
-  Briefcase,
-  FileText,
-  Image,
-  LayoutDashboard,
-  Mail,
-  Settings,
-  Sparkles,
-  User,
-  X,
-} from 'lucide-react'
+import { Briefcase, FileText, Grid, Image, LayoutDashboard, Mail, Settings, User, X } from 'lucide-react'
 
-const links = [
-  { to: '/admin', end: true, label: 'Dashboard', icon: LayoutDashboard },
-  { to: '/admin/images/hero', label: 'Hero Images', icon: Image },
-  { to: '/admin/images/work', label: 'Work Images', icon: Briefcase },
-  { to: '/admin/images/about', label: 'About Images', icon: User },
-  { to: '/admin/images', end: true, label: 'All Images', icon: Image },
-  { to: '/admin/resume', label: 'Resume Manager', icon: FileText },
-  { to: '/admin/contacts', label: 'Contacts', icon: Mail },
-  { to: '/admin/settings', label: 'Settings', icon: Settings },
+const LINKS = [
+  { to: '/admin', end: true, label: 'Dashboard',   icon: LayoutDashboard, group: null },
+  { to: '/admin/images/hero',  label: 'Hero Images',  icon: Image,         group: 'Images' },
+  { to: '/admin/images/work',  label: 'Work Images',  icon: Briefcase,     group: 'Images' },
+  { to: '/admin/images/about', label: 'About Images', icon: User,          group: 'Images' },
+  { to: '/admin/images', end: true, label: 'All Images', icon: Grid,       group: 'Images' },
+  { to: '/admin/resume',   label: 'Resume',   icon: FileText, group: 'Content' },
+  { to: '/admin/contacts', label: 'Contacts', icon: Mail,     group: 'Content' },
+  { to: '/admin/settings', label: 'Settings', icon: Settings, group: 'Content' },
 ]
 
 export default function MobileDrawer({ open, onClose }) {
@@ -28,6 +18,7 @@ export default function MobileDrawer({ open, onClose }) {
     <AnimatePresence>
       {open && (
         <>
+          {/* Backdrop */}
           <motion.div
             className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm lg:hidden"
             initial={{ opacity: 0 }}
@@ -35,44 +26,70 @@ export default function MobileDrawer({ open, onClose }) {
             exit={{ opacity: 0 }}
             onClick={onClose}
           />
+
+          {/* Drawer */}
           <motion.aside
-            className="fixed left-0 top-0 z-50 h-full w-[min(300px,88vw)] admin-glass border-r border-white/5 lg:hidden flex flex-col"
+            className="fixed left-0 top-0 z-[60] h-full w-[min(260px,85vw)] bg-[#111113] border-r border-white/5 lg:hidden flex flex-col shadow-2xl"
             initial={{ x: '-100%' }}
             animate={{ x: 0 }}
             exit={{ x: '-100%' }}
             transition={{ type: 'spring', damping: 28, stiffness: 320 }}
+            aria-label="Mobile navigation"
           >
-            <div className="flex items-center justify-between h-16 px-5 border-b border-white/5">
-              <div className="flex items-center gap-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-violet-600 to-cyan-600">
-                  <Sparkles className="h-4 w-4 text-white" />
+            {/* Header */}
+            <div className="flex items-center justify-between h-14 px-4 border-b border-white/5 shrink-0">
+              <div className="flex items-center gap-2.5">
+                <div className="h-7 w-7 flex items-center justify-center rounded-lg bg-gradient-to-br from-violet-600 to-cyan-600">
+                  <span className="text-white text-xs font-bold">G</span>
                 </div>
-                <span className="font-semibold text-sm">Portfolio CMS</span>
+                <span className="font-semibold text-sm text-zinc-100">Portfolio CMS</span>
               </div>
-              <button type="button" onClick={onClose} className="p-2 text-zinc-400 hover:text-white">
-                <X className="h-5 w-5" />
+              <button
+                type="button"
+                onClick={onClose}
+                className="p-2 rounded-lg text-zinc-500 hover:text-white hover:bg-white/5 transition-colors"
+                aria-label="Close menu"
+              >
+                <X className="h-4 w-4" />
               </button>
             </div>
-            <nav className="flex-1 overflow-y-auto p-4 space-y-1">
-              {links.map(({ to, end, label, icon: Icon }) => (
-                <NavLink
-                  key={to}
-                  to={to}
-                  end={end}
-                  onClick={onClose}
-                  className={({ isActive }) =>
-                    [
-                      'flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium',
-                      isActive
-                        ? 'bg-violet-600/20 text-white'
-                        : 'text-zinc-400 hover:bg-white/5',
-                    ].join(' ')
-                  }
-                >
-                  <Icon className="h-[18px] w-[18px]" />
-                  {label}
-                </NavLink>
-              ))}
+
+            {/* Links */}
+            <nav className="flex-1 overflow-y-auto px-2 py-4">
+              {['', 'Images', 'Content'].map((group) => {
+                const items = LINKS.filter((l) => (l.group ?? '') === group)
+                if (items.length === 0) return null
+                return (
+                  <div key={group} className={group ? 'mt-5' : ''}>
+                    {group && (
+                      <p className="px-3 mb-1.5 text-[0.625rem] font-semibold uppercase tracking-widest text-zinc-600">
+                        {group}
+                      </p>
+                    )}
+                    <div className="space-y-0.5">
+                      {items.map(({ to, end, label, icon: Icon }) => (
+                        <NavLink
+                          key={to}
+                          to={to}
+                          end={end}
+                          onClick={onClose}
+                          className={({ isActive }) =>
+                            [
+                              'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-150',
+                              isActive
+                                ? 'bg-violet-500/15 text-white border border-violet-500/20'
+                                : 'text-zinc-400 hover:text-zinc-100 hover:bg-white/5',
+                            ].join(' ')
+                          }
+                        >
+                          <Icon className="h-4 w-4 shrink-0" strokeWidth={1.75} />
+                          {label}
+                        </NavLink>
+                      ))}
+                    </div>
+                  </div>
+                )
+              })}
             </nav>
           </motion.aside>
         </>
