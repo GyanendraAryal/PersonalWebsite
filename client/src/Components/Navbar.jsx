@@ -1,55 +1,58 @@
-import { useState, useEffect } from 'react'
-import { NavLink, Link, useLocation } from 'react-router-dom'
-import { Menu, X } from 'lucide-react'
+import { useState, useEffect } from "react";
+import { NavLink, Link, useLocation } from "react-router-dom";
+import { Menu, Moon, Sun, X } from "lucide-react";
+import useTheme from "../hooks/useTheme";
 
 const NAV_ITEMS = [
-  { name: 'Home',     path: '/' },
-  { name: 'Services', path: '/service' },
-  { name: 'Work',     path: '/work' },
-  { name: 'Resume',   path: '/resume' },
-  { name: 'Contact',  path: '/contact' },
-]
+  { name: "Home", path: "/" },
+  { name: "Services", path: "/service" },
+  { name: "Work", path: "/work" },
+  { name: "Resume", path: "/resume" },
+  { name: "Contact", path: "/contact" },
+];
 
 export default function Navbar() {
-  const [open, setOpen] = useState(false)
-  const [scrolled, setScrolled] = useState(false)
-  const location = useLocation()
+  const { themeMode, toggleTheme } = useTheme();
+  const darkMode = themeMode === "dark";
+
+  const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const location = useLocation();
 
   // Close mobile menu on route change
-  useEffect(() => { setOpen(false) }, [location.pathname])
+  useEffect(() => {
+    setOpen(false);
+  }, [location.pathname]);
 
   // Add shadow/border on scroll
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20)
-    window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [])
+    const onScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   const desktopLink = ({ isActive }) =>
     `relative px-1 py-0.5 text-sm font-medium transition-colors duration-200 ${
-      isActive
-        ? 'text-white'
-        : 'text-zinc-400 hover:text-white'
-    }`
+      isActive ? "text-white" : "text-zinc-400 hover:text-white"
+    }`;
 
   const mobileLink = ({ isActive }) =>
     `block w-full px-4 py-3 rounded-lg text-sm font-medium transition-colors duration-200 ${
       isActive
-        ? 'text-white bg-orange-500/10 border-l-2 border-orange-500'
-        : 'text-zinc-400 hover:text-white hover:bg-white/5'
-    }`
+        ? "text-white bg-orange-500/10 border-l-2 border-orange-500"
+        : "text-zinc-400 hover:text-white hover:bg-white/5"
+    }`;
 
   return (
     <>
       <nav
         className={`fixed top-0 inset-x-0 z-50 h-14 transition-all duration-300 ${
           scrolled
-            ? 'bg-[#0e0e10]/90 backdrop-blur-xl border-b border-white/8 shadow-[0_1px_0_rgba(255,255,255,0.05)]'
-            : 'bg-transparent'
+            ? "bg-[#0e0e10]/90 backdrop-blur-xl border-b border-white/8 shadow-[0_1px_0_rgba(255,255,255,0.05)]"
+            : "bg-transparent"
         }`}
       >
         <div className="section-container h-full flex items-center justify-between gap-8">
-
           {/* Wordmark */}
           <Link
             to="/"
@@ -59,7 +62,9 @@ export default function Navbar() {
             <span className="text-[1.1rem] font-bold tracking-tight text-white leading-none">
               Gyanendra
             </span>
-            <span className="text-orange-500 text-xl font-extrabold leading-none translate-y-px">.</span>
+            <span className="text-orange-500 text-xl font-extrabold leading-none translate-y-px">
+              .
+            </span>
           </Link>
 
           {/* Desktop nav */}
@@ -68,7 +73,7 @@ export default function Navbar() {
               <li key={item.path} className="relative group">
                 <NavLink
                   to={item.path}
-                  end={item.path === '/'}
+                  end={item.path === "/"}
                   className={desktopLink}
                 >
                   {item.name}
@@ -79,11 +84,33 @@ export default function Navbar() {
             ))}
           </ul>
 
-          {/* Desktop CTA */}
+          {/* Desktop Theme Toggle + CTA */}
           <div className="hidden md:flex items-center gap-3 shrink-0">
+            {/* Dark / Light Mode Toggle */}
+            <button
+              onClick={toggleTheme}
+              aria-pressed={darkMode}
+              aria-label={
+                darkMode ? "Switch to light mode" : "Switch to dark mode"
+              }
+              title={darkMode ? "Light mode" : "Dark mode"}
+              className="p-2 cursor-pointer rounded-full text-gray-700 dark:text-gray-200
+               hover:bg-gray-100 dark:hover:bg-gray-800
+               transition-all duration-200"
+            >
+              {darkMode ? (
+                <Sun size={20} className="text-orange-400" />
+              ) : (
+                <Moon size={20} className="text-slate-700" />
+              )}
+            </button>
+
+            {/* Hire Me Button */}
             <Link
               to="/contact"
-              className="px-4 py-1.5 rounded-md bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold transition-colors duration-200"
+              className="px-4 py-1.5 rounded-md bg-orange-500 hover:bg-orange-600
+               text-white text-sm font-semibold
+               transition-colors duration-200"
             >
               Hire me
             </Link>
@@ -98,7 +125,6 @@ export default function Navbar() {
           >
             <Menu className="w-5 h-5" />
           </button>
-
         </div>
       </nav>
 
@@ -125,8 +151,12 @@ export default function Navbar() {
                 onClick={() => setOpen(false)}
                 className="flex items-baseline gap-0.5"
               >
-                <span className="text-[1rem] font-bold text-white">Gyanendra</span>
-                <span className="text-orange-500 text-lg font-extrabold">.</span>
+                <span className="text-[1rem] font-bold text-white">
+                  Gyanendra
+                </span>
+                <span className="text-orange-500 text-lg font-extrabold">
+                  .
+                </span>
               </Link>
               <button
                 onClick={() => setOpen(false)}
@@ -143,7 +173,7 @@ export default function Navbar() {
                 <NavLink
                   key={item.path}
                   to={item.path}
-                  end={item.path === '/'}
+                  end={item.path === "/"}
                   className={mobileLink}
                 >
                   {item.name}
@@ -153,6 +183,18 @@ export default function Navbar() {
 
             {/* Footer CTA */}
             <div className="px-4 py-5 border-t border-white/8">
+              <button
+                onClick={toggleTheme}
+                aria-pressed={darkMode}
+                className="mb-3 flex w-full items-center justify-center gap-2 rounded-lg border border-white/10 px-4 py-2.5 text-sm font-medium text-zinc-400 transition-colors hover:bg-white/5 hover:text-white"
+              >
+                {darkMode ? (
+                  <Sun size={16} className="text-orange-400" aria-hidden />
+                ) : (
+                  <Moon size={16} className="text-slate-700" aria-hidden />
+                )}
+                Switch to {darkMode ? "light" : "dark"} mode
+              </button>
               <Link
                 to="/contact"
                 onClick={() => setOpen(false)}
@@ -165,5 +207,5 @@ export default function Navbar() {
         </div>
       )}
     </>
-  )
+  );
 }
