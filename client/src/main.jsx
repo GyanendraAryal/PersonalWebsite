@@ -6,6 +6,7 @@ import App from './App'
 import PageWrapper from './animate/PageWrapper'
 import ErrorBoundary from './Components/ErrorBoundary'
 import LoadingFallback from './Components/LoadingFallback'
+import { ThemeProvider } from './context/ThemeContext'
 
 const Home = lazy(() => import('./Pages/Home'))
 const Services = lazy(() => import('./Pages/Services'))
@@ -51,7 +52,9 @@ const router = createBrowserRouter(
 createRoot(document.getElementById('root')).render(
   <ErrorBoundary>
     <PageWrapper>
-      <RouterProvider router={router} />
+      <ThemeProvider>
+        <RouterProvider router={router} />
+      </ThemeProvider>
     </PageWrapper>
   </ErrorBoundary>
 )
