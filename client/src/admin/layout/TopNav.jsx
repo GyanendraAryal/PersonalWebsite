@@ -7,7 +7,6 @@ const TITLES = {
   '/admin/images':       { label: 'All Images',     sub: 'Images' },
   '/admin/images/hero':  { label: 'Hero Images',    sub: 'Images' },
   '/admin/images/work':  { label: 'Work Images',    sub: 'Images' },
-  '/admin/images/about': { label: 'About Images',   sub: 'Images' },
   '/admin/resume':       { label: 'Resume Manager', sub: 'Content' },
   '/admin/contacts':     { label: 'Contacts',       sub: 'Content' },
   '/admin/settings':     { label: 'Settings',       sub: 'Admin' },

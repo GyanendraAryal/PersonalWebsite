@@ -15,7 +15,7 @@ import ImagePreviewModal from '../components/images/ImagePreviewModal'
 import BulkActionsBar from '../components/images/BulkActionsBar'
 import { IMAGE_CATEGORIES, CATEGORY_LABELS } from '../constants'
 
-const ROUTE_CATEGORY = { hero: 'hero', work: 'work', about: 'about' }
+const ROUTE_CATEGORY = { hero: 'hero', work: 'work' }
 
 export default function ImagesPage() {
   const { category: routeCat } = useParams()
@@ -130,29 +130,57 @@ export default function ImagesPage() {
 
       {/* ── Upload card ───────────────────────────────── */}
       <Card>
-        <div className="flex items-center gap-2 mb-4">
-          <Upload className="h-4 w-4 text-orange-400" />
-          <h3 className="font-semibold text-sm text-zinc-100">Upload images</h3>
+        <div className="mb-4">
+          <div className="flex items-center gap-2">
+            <Upload className="h-4 w-4 text-orange-400" />
+            <h3 className="font-semibold text-sm text-zinc-100">Upload image assets</h3>
+          </div>
+          <p className="mt-1 text-xs text-zinc-500">
+            Hero images appear in the homepage carousel. Work and other images are library assets;
+            they do not appear publicly until assigned to frontend content.
+          </p>
         </div>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-4">
-          <input
-            type="text"
-            placeholder="Title (optional — defaults to filename)"
-            value={uploadTitle}
-            onChange={(e) => setUploadTitle(e.target.value)}
-            className="rounded-xl bg-zinc-800/80 border border-white/8 px-3.5 py-2.5 text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-orange-500/60 transition-colors col-span-full sm:col-span-1 lg:col-span-2"
-          />
-          <select
-            value={uploadCategory}
-            onChange={(e) => setUploadCategory(e.target.value)}
-            disabled={!!fixedCategory}
-            className="rounded-xl bg-zinc-800/80 border border-white/8 px-3.5 py-2.5 text-sm text-zinc-100 focus:outline-none focus:border-orange-500/60 transition-colors disabled:opacity-50"
-          >
-            {IMAGE_CATEGORIES.map((c) => (
-              <option key={c} value={c}>{CATEGORY_LABELS[c]}</option>
-            ))}
-          </select>
+          <div className="col-span-full sm:col-span-1 lg:col-span-2">
+            <label htmlFor="image-title" className="mb-1.5 block text-xs font-medium text-zinc-400">
+              Image title
+            </label>
+            <input
+              id="image-title"
+              type="text"
+              placeholder="Optional — defaults to filename"
+              value={uploadTitle}
+              onChange={(e) => setUploadTitle(e.target.value)}
+              className="w-full rounded-xl bg-zinc-800/80 border border-white/8 px-3.5 py-2.5 text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-orange-500/60 transition-colors"
+            />
+            <p className="mt-1 text-xs text-zinc-600">
+              Used as accessible image text for homepage hero images; otherwise it identifies the asset in this library.
+            </p>
+          </div>
+          <div>
+            <label htmlFor="image-category" className="mb-1.5 block text-xs font-medium text-zinc-400">
+              Placement
+            </label>
+            <select
+              id="image-category"
+              value={uploadCategory}
+              onChange={(e) => setUploadCategory(e.target.value)}
+              disabled={!!fixedCategory}
+              className="w-full rounded-xl bg-zinc-800/80 border border-white/8 px-3.5 py-2.5 text-sm text-zinc-100 focus:outline-none focus:border-orange-500/60 transition-colors disabled:opacity-50"
+            >
+              {IMAGE_CATEGORIES.map((c) => (
+                <option key={c} value={c}>{CATEGORY_LABELS[c]}</option>
+              ))}
+            </select>
+            <p className="mt-1 text-xs text-zinc-600">
+              {uploadCategory === 'hero'
+                ? 'Shown in the homepage hero carousel.'
+                : uploadCategory === 'work'
+                  ? 'Library tag only; assign the URL to a Work item in Django Admin.'
+                  : 'Stored in the library, not displayed on the public site.'}
+            </p>
+          </div>
         </div>
 
         <UploadZone

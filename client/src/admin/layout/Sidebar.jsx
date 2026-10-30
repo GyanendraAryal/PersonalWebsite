@@ -9,7 +9,6 @@ import {
   LayoutDashboard,
   Mail,
   Settings,
-  User,
 } from 'lucide-react'
 
 const NAV_GROUPS = [
@@ -23,7 +22,6 @@ const NAV_GROUPS = [
     items: [
       { to: '/admin/images/hero',  label: 'Hero',   icon: Image },
       { to: '/admin/images/work',  label: 'Work',   icon: Briefcase },
-      { to: '/admin/images/about', label: 'About',  icon: User },
       { to: '/admin/images', end: true, label: 'All Images', icon: Grid },
     ],
   },

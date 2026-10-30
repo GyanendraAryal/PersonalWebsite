@@ -91,7 +91,7 @@ export default function Dashboard() {
           <>
             <StatCard icon={Image}     label="Total Images"  value={images.length} />
             <StatCard icon={Sparkles}  label="Hero Images"   value={heroCount} />
-            <StatCard icon={Briefcase} label="Work Images"   value={workCount} />
+            <StatCard icon={Briefcase} label="Work-tagged assets" value={workCount} />
             <StatCard
               icon={FileText}
               label="Resume"
@@ -168,7 +168,7 @@ export default function Dashboard() {
 
           {[
             { label: 'Upload hero image',    to: '/admin/images/hero',    desc: 'Shown on home page' },
-            { label: 'Upload work image',    to: '/admin/images/work',    desc: 'Shown in projects gallery' },
+            { label: 'Work image library',  to: '/admin/images/work',    desc: 'Tag an asset, then assign it to a Work item in Django Admin' },
             { label: 'Update resume PDF',    to: '/admin/resume',         desc: 'Public resume download' },
             { label: 'View contacts',        to: '/admin/contacts',       desc: 'Messages from visitors' },
           ].map((action) => (

@@ -1,9 +1,9 @@
 import { Link } from 'react-router-dom'
-import { ExternalLink, Moon, PanelLeft, Info } from 'lucide-react'
+import { ExternalLink, Moon, PanelLeft, Info, User } from 'lucide-react'
 import Card from '../components/ui/Card'
 import Button from '../components/ui/Button'
 import { useSidebar } from '../hooks/useSidebar'
-import { DJANGO_ADMIN_URL } from '../constants'
+import { DJANGO_ADMIN_URL, PORTFOLIO_PROFILE_ADMIN_URL } from '../constants'
 
 function SettingRow({ icon: Icon, iconColor = 'text-orange-400', title, description, control }) {
   return (
@@ -80,18 +80,26 @@ export default function SettingsPage() {
         </div>
       </Card>
 
-      {/* ── Django Admin ─────────────────────────────── */}
+      {/* ── Portfolio profile ────────────────────────── */}
       <Card>
-        <h3 className="font-semibold text-sm text-zinc-100 mb-1">Django Admin</h3>
+        <h3 className="font-semibold text-sm text-zinc-100 mb-1">Portfolio profile</h3>
         <p className="text-xs text-zinc-600 mb-4">
-          Advanced database management, user administration, and raw model editing.
+          Edit the name, availability, homepage roles and copy, resume and contact text, location, and social links shown on the public site.
         </p>
-        <a href={DJANGO_ADMIN_URL} target="_blank" rel="noopener noreferrer">
-          <Button variant="secondary">
-            <ExternalLink className="h-4 w-4" />
-            Open Django Admin
-          </Button>
-        </a>
+        <div className="flex flex-wrap gap-2">
+          <a href={PORTFOLIO_PROFILE_ADMIN_URL} target="_blank" rel="noopener noreferrer">
+            <Button>
+              <User className="h-4 w-4" />
+              Edit portfolio profile
+            </Button>
+          </a>
+          <a href={DJANGO_ADMIN_URL} target="_blank" rel="noopener noreferrer">
+            <Button variant="secondary">
+              <ExternalLink className="h-4 w-4" />
+              Open full Django Admin
+            </Button>
+          </a>
+        </div>
       </Card>
 
       {/* ── Back link ────────────────────────────────── */}

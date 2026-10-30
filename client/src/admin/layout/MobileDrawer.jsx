@@ -1,12 +1,11 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { NavLink } from 'react-router-dom'
-import { Briefcase, FileText, Grid, Image, LayoutDashboard, Mail, Settings, User, X } from 'lucide-react'
+import { Briefcase, FileText, Grid, Image, LayoutDashboard, Mail, Settings, X } from 'lucide-react'
 
 const LINKS = [
   { to: '/admin', end: true, label: 'Dashboard',   icon: LayoutDashboard, group: null },
   { to: '/admin/images/hero',  label: 'Hero Images',  icon: Image,         group: 'Images' },
   { to: '/admin/images/work',  label: 'Work Images',  icon: Briefcase,     group: 'Images' },
-  { to: '/admin/images/about', label: 'About Images', icon: User,          group: 'Images' },
   { to: '/admin/images', end: true, label: 'All Images', icon: Grid,       group: 'Images' },
   { to: '/admin/resume',   label: 'Resume',   icon: FileText, group: 'Content' },
   { to: '/admin/contacts', label: 'Contacts', icon: Mail,     group: 'Content' },
