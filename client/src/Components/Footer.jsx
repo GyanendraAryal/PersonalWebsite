@@ -72,7 +72,7 @@ export default function Footer() {
   })).filter((social) => social.href);
 
   return (
-    <footer className="bg-[#0a0a0c] my-2 border-t border-white/6">
+    <footer className="bg-[#0a0a0c] mt-12 border-t border-white/6">
       <div className="section-container py-10">
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr] max-w-4xl">
           {/* Brand */}
