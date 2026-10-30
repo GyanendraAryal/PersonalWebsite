@@ -1,5 +1,5 @@
-from django.http import FileResponse, Http404
-from django.core.exceptions import SuspiciousFileOperation
+from django.http import Http404, HttpResponse
+from django.urls import reverse
 from rest_framework import generics, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -16,21 +16,17 @@ from .serializers import (
     ContactSerializer,
     ContactReadSerializer,
 )
-from .storage import resume_storage
+from .validators import get_resume_file_error
 
 
 @require_GET
 def resume_file(request, file_path):
-    try:
-        uploaded_file = resume_storage.open(file_path, "rb")
-    except (FileNotFoundError, SuspiciousFileOperation) as exc:
-        raise Http404("Resume file not found.") from exc
-    return FileResponse(
-        uploaded_file,
-        as_attachment=False,
-        filename=file_path.rsplit("/", 1)[-1],
-        content_type="application/pdf",
-    )
+    resume = Resume.objects.order_by("-created_at").first()
+    if resume is None or not resume.content:
+        raise Http404("Resume file not found.")
+    response = HttpResponse(bytes(resume.content), content_type="application/pdf")
+    response["Content-Disposition"] = 'inline; filename="resume.pdf"'
+    return response
 
 
 class PortfolioImageListCreateView(generics.ListCreateAPIView):
@@ -107,14 +103,41 @@ class ResumeUploadView(APIView):
     @extend_schema(
         request=ResumeSerializer,
         responses={201: ResumeSerializer},
-        description="Upload a PDF resume to local storage and make it active. Requires admin authentication.",
+        description="Upload a PDF resume to the database and make it active. Requires admin authentication.",
     )
     def post(self, request):
-        serializer = ResumeSerializer(data=request.data)
-        if serializer.is_valid():
-            resume = serializer.save(is_active=True)
-            return Response(ResumeSerializer(resume).data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        uploaded_file = request.FILES.get("file")
+        if uploaded_file is None:
+            return Response(
+                {"file": "A PDF file is required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        file_error = get_resume_file_error(uploaded_file)
+        if file_error:
+            return Response({"file": file_error}, status=status.HTTP_400_BAD_REQUEST)
+
+        title = request.data.get("title") or "Resume"
+        if len(title) > Resume._meta.get_field("title").max_length:
+            return Response(
+                {"title": "Ensure this field has no more than 200 characters."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        file_url = request.build_absolute_uri(
+            reverse("resume_file", kwargs={"file_path": "resume.pdf"})
+        )
+        resume = Resume.objects.create(
+            title=title,
+            content=uploaded_file.read(),
+            file_url=file_url,
+            public_id="",
+            is_active=True,
+        )
+        return Response(
+            ResumeSerializer(resume).data,
+            status=status.HTTP_201_CREATED,
+        )
 
 
 class ResumeDeleteView(generics.DestroyAPIView):

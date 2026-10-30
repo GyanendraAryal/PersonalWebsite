@@ -1,7 +1,6 @@
 from rest_framework import serializers
 import cloudinary.uploader
 from .models import PortfolioImage, Resume, Contact
-from .storage import store_resume
 from .validators import get_resume_file_error
 
 
@@ -36,6 +35,7 @@ class PortfolioImageSerializer(serializers.ModelSerializer):
 
 class ResumeSerializer(serializers.ModelSerializer):
     file = serializers.FileField(write_only=True, required=True)
+    uploaded_at = serializers.DateTimeField(source='created_at', read_only=True)
 
     class Meta:
         model = Resume
@@ -47,16 +47,6 @@ class ResumeSerializer(serializers.ModelSerializer):
         if error:
             raise serializers.ValidationError(error)
         return value
-
-    def create(self, validated_data):
-        uploaded_file = validated_data.pop('file')
-        _, public_id, file_url = store_resume(uploaded_file)
-        return Resume.objects.create(
-            file_url=file_url,
-            public_id=public_id,
-            **validated_data
-        )
-
 
 class ContactSerializer(serializers.ModelSerializer):
     class Meta:
