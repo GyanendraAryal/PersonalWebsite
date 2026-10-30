@@ -1,5 +1,6 @@
 from django.db import models
 import cloudinary.uploader
+from .storage import LOCAL_RESUME_PREFIX, resume_storage
 
 
 class PortfolioImage(models.Model):
@@ -51,7 +52,10 @@ class Resume(models.Model):
 
     def delete(self, *args, **kwargs):
         if self.public_id:
-            cloudinary.uploader.destroy(self.public_id, resource_type="raw")
+            if self.public_id.startswith(LOCAL_RESUME_PREFIX):
+                resume_storage.delete(self.public_id[len(LOCAL_RESUME_PREFIX):])
+            else:
+                cloudinary.uploader.destroy(self.public_id, resource_type="raw")
         super().delete(*args, **kwargs)
 
 

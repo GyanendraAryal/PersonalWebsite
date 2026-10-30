@@ -1,6 +1,7 @@
 from rest_framework import serializers
 import cloudinary.uploader
 from .models import PortfolioImage, Resume, Contact
+from .storage import store_resume
 from .validators import get_resume_file_error
 
 
@@ -48,15 +49,11 @@ class ResumeSerializer(serializers.ModelSerializer):
         return value
 
     def create(self, validated_data):
-        file = validated_data.pop('file')
-        result = cloudinary.uploader.upload(
-            file,
-            folder='portfolio/resumes',
-            resource_type='raw',
-        )
+        uploaded_file = validated_data.pop('file')
+        _, public_id, file_url = store_resume(uploaded_file)
         return Resume.objects.create(
-            file_url=result['secure_url'],
-            public_id=result['public_id'],
+            file_url=file_url,
+            public_id=public_id,
             **validated_data
         )
 

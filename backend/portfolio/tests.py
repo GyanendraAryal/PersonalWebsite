@@ -1,4 +1,5 @@
 import json
+from tempfile import TemporaryDirectory
 from unittest.mock import patch
 
 from cloudinary.exceptions import Error
@@ -9,12 +10,28 @@ from rest_framework.test import APIClient
 
 from .admin import ResumeAdmin, ResumeAdminForm
 from .models import Contact, Resume
+from .storage import resume_storage, store_resume
 
 
 class ResumeAdminTests(TestCase):
     def setUp(self):
         self.request = RequestFactory().get("/admin/portfolio/resume/")
         self.model_admin = ResumeAdmin(Resume, None)
+        self.media_dir = TemporaryDirectory()
+        self.original_storage_location = resume_storage._location
+        self.original_storage_base_url = resume_storage._base_url
+        resume_storage._location = self.media_dir.name
+        resume_storage._base_url = "http://testserver/api/resume/files/"
+        resume_storage.__dict__.pop("location", None)
+        resume_storage.__dict__.pop("base_url", None)
+        self.addCleanup(self.restore_resume_storage)
+
+    def restore_resume_storage(self):
+        resume_storage._location = self.original_storage_location
+        resume_storage._base_url = self.original_storage_base_url
+        resume_storage.__dict__.pop("location", None)
+        resume_storage.__dict__.pop("base_url", None)
+        self.media_dir.cleanup()
 
     def test_admin_pages_render_for_resume_crud(self):
         admin_user = User.objects.create_superuser(
@@ -71,8 +88,8 @@ class ResumeAdminTests(TestCase):
         self.assertEqual(client.delete(f"/api/resume/{resume.pk}/").status_code, 401)
         self.assertTrue(Resume.objects.filter(pk=resume.pk).exists())
 
-    @patch("portfolio.serializers.cloudinary.uploader.upload")
-    def test_api_rejects_non_pdf_invalid_pdf_and_oversized_resume(self, upload):
+    @patch("portfolio.serializers.store_resume")
+    def test_api_rejects_non_pdf_invalid_pdf_and_oversized_resume(self, store):
         admin_user = User.objects.create_superuser(
             username="admin",
             email="admin@example.com",
@@ -100,11 +117,10 @@ class ResumeAdminTests(TestCase):
                 self.assertEqual(response.status_code, 400)
                 self.assertIn("file", response.json())
 
-        upload.assert_not_called()
+        store.assert_not_called()
         self.assertEqual(Resume.objects.count(), 0)
 
-    @patch("portfolio.serializers.cloudinary.uploader.upload")
-    def test_api_upload_accepts_valid_pdf_and_replaces_active_resume(self, upload):
+    def test_api_upload_accepts_valid_pdf_and_replaces_active_resume(self):
         admin_user = User.objects.create_superuser(
             username="admin",
             email="admin@example.com",
@@ -115,10 +131,6 @@ class ResumeAdminTests(TestCase):
             file_url="https://res.cloudinary.com/demo/raw/upload/previous.pdf",
             public_id="portfolio/resumes/previous",
         )
-        upload.return_value = {
-            "secure_url": "https://res.cloudinary.com/demo/raw/upload/new.pdf",
-            "public_id": "portfolio/resumes/new",
-        }
         client = APIClient()
         client.force_authenticate(user=admin_user)
 
@@ -136,15 +148,19 @@ class ResumeAdminTests(TestCase):
         )
 
         self.assertEqual(response.status_code, 201)
-        self.assertEqual(response.json()["file_url"], upload.return_value["secure_url"])
+        self.assertEqual(response.json()["file_url"], Resume.objects.get(is_active=True).file_url)
         self.assertTrue(response.json()["is_active"])
+        self.assertTrue(response.json()["file_url"].startswith("http://testserver/api/resume/files/"))
         public_response = client.get("/api/resume/")
         self.assertEqual(public_response.status_code, 200)
-        self.assertEqual(public_response.json()["file_url"], upload.return_value["secure_url"])
+        self.assertEqual(public_response.json()["file_url"], response.json()["file_url"])
+        file_response = client.get(response.json()["file_url"])
+        self.assertEqual(file_response.status_code, 200)
+        self.assertEqual(file_response["Content-Type"], "application/pdf")
+        self.assertEqual(b"".join(file_response.streaming_content), b"%PDF-1.7 valid sample")
         previous.refresh_from_db()
         self.assertFalse(previous.is_active)
-        upload.assert_called_once()
-        self.assertEqual(upload.call_args.kwargs["resource_type"], "raw")
+        self.assertTrue(Resume.objects.get(is_active=True).public_id.startswith("local:"))
 
     def test_public_image_reads_work_but_admin_data_is_protected(self):
         client = APIClient()
@@ -194,8 +210,8 @@ class ResumeAdminTests(TestCase):
         self.assertFalse(form.is_valid())
         self.assertIn("resume_file", form.errors)
 
-    @patch("portfolio.admin.cloudinary.uploader.upload")
-    def test_admin_rejects_non_pdf_files_without_uploading(self, upload):
+    @patch("portfolio.admin.store_resume")
+    def test_admin_rejects_non_pdf_files_without_uploading(self, store):
         non_pdf = SimpleUploadedFile("resume.txt", b"not a PDF")
         form = ResumeAdminForm(
             data={"title": "My resume", "is_active": True},
@@ -204,11 +220,11 @@ class ResumeAdminTests(TestCase):
 
         self.assertFalse(form.is_valid())
         self.assertIn("resume_file", form.errors)
-        upload.assert_not_called()
+        store.assert_not_called()
 
-    @patch("portfolio.admin.cloudinary.uploader.upload")
-    def test_cloudinary_upload_error_is_reported_on_the_form(self, upload):
-        upload.side_effect = Error("Cloudinary unavailable")
+    @patch("portfolio.admin.store_resume")
+    def test_local_storage_error_is_reported_on_the_form(self, store):
+        store.side_effect = OSError("Storage unavailable")
         pdf = SimpleUploadedFile("resume.pdf", b"%PDF-1.7 sample")
         form = ResumeAdminForm(
             data={"title": "My resume", "is_active": True},
@@ -216,14 +232,9 @@ class ResumeAdminTests(TestCase):
         )
 
         self.assertFalse(form.is_valid())
-        self.assertIn("Cloudinary upload failed", str(form.errors["resume_file"]))
+        self.assertIn("Local resume storage failed", str(form.errors["resume_file"]))
 
-    @patch("portfolio.admin.cloudinary.uploader.upload")
-    def test_admin_uploads_pdf_to_cloudinary_and_saves_cloud_url(self, upload):
-        upload.return_value = {
-            "secure_url": "https://res.cloudinary.com/demo/raw/upload/resume.pdf",
-            "public_id": "portfolio/resumes/resume",
-        }
+    def test_admin_uploads_pdf_to_local_storage_and_saves_public_url(self):
         pdf = SimpleUploadedFile("resume.pdf", b"%PDF-1.7 sample", content_type="application/pdf")
         form = ResumeAdminForm(
             data={"title": "My resume", "is_active": True},
@@ -233,10 +244,11 @@ class ResumeAdminTests(TestCase):
         self.assertTrue(form.is_valid(), form.errors)
         resume = form.save()
 
-        self.assertEqual(resume.file_url, upload.return_value["secure_url"])
-        self.assertEqual(resume.public_id, upload.return_value["public_id"])
-        upload.assert_called_once()
-        self.assertEqual(upload.call_args.kwargs["resource_type"], "raw")
+        self.assertTrue(resume.file_url.startswith("http://testserver/api/resume/files/"))
+        self.assertTrue(resume.public_id.startswith("local:"))
+        response = self.client.get(resume.file_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(b"".join(response.streaming_content), b"%PDF-1.7 sample")
 
     def test_existing_resume_can_be_edited_without_reuploading(self):
         resume = Resume.objects.create(
@@ -257,17 +269,12 @@ class ResumeAdminTests(TestCase):
         self.assertEqual(updated_resume.title, "Updated title")
         self.assertEqual(updated_resume.file_url, resume.file_url)
 
-    @patch("portfolio.admin.cloudinary.uploader.upload")
-    def test_new_upload_makes_previous_resume_inactive(self, upload):
+    def test_new_upload_makes_previous_resume_inactive(self):
         previous = Resume.objects.create(
             title="Previous resume",
             file_url="https://res.cloudinary.com/demo/raw/upload/previous.pdf",
             public_id="portfolio/resumes/previous",
         )
-        upload.return_value = {
-            "secure_url": "https://res.cloudinary.com/demo/raw/upload/new.pdf",
-            "public_id": "portfolio/resumes/new",
-        }
         pdf = SimpleUploadedFile("new.pdf", b"%PDF-1.7 sample")
         form = ResumeAdminForm(
             data={"title": "New resume", "is_active": True},
@@ -279,6 +286,20 @@ class ResumeAdminTests(TestCase):
 
         previous.refresh_from_db()
         self.assertFalse(previous.is_active)
+
+    def test_delete_removes_a_locally_stored_resume_file(self):
+        pdf = SimpleUploadedFile("resume.pdf", b"%PDF-1.7 sample")
+        name, public_id, file_url = store_resume(pdf)
+        resume = Resume.objects.create(
+            title="Local resume",
+            file_url=file_url,
+            public_id=public_id,
+        )
+        self.assertTrue(resume_storage.exists(name))
+
+        resume.delete()
+
+        self.assertFalse(resume_storage.exists(name))
 
     @patch("portfolio.models.cloudinary.uploader.destroy")
     def test_admin_bulk_delete_removes_raw_cloudinary_asset(self, destroy):

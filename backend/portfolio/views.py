@@ -1,9 +1,12 @@
+from django.http import FileResponse, Http404
+from django.core.exceptions import SuspiciousFileOperation
 from rest_framework import generics, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import IsAdminUser
 from drf_spectacular.utils import extend_schema, OpenApiParameter
+from django.views.decorators.http import require_GET
 
 from .models import PortfolioImage, Resume, Contact
 from .permissions import IsAdminOrReadOnly
@@ -13,6 +16,21 @@ from .serializers import (
     ContactSerializer,
     ContactReadSerializer,
 )
+from .storage import resume_storage
+
+
+@require_GET
+def resume_file(request, file_path):
+    try:
+        uploaded_file = resume_storage.open(file_path, "rb")
+    except (FileNotFoundError, SuspiciousFileOperation) as exc:
+        raise Http404("Resume file not found.") from exc
+    return FileResponse(
+        uploaded_file,
+        as_attachment=False,
+        filename=file_path.rsplit("/", 1)[-1],
+        content_type="application/pdf",
+    )
 
 
 class PortfolioImageListCreateView(generics.ListCreateAPIView):
@@ -89,7 +107,7 @@ class ResumeUploadView(APIView):
     @extend_schema(
         request=ResumeSerializer,
         responses={201: ResumeSerializer},
-        description="Upload a PDF resume to Cloudinary and make it active. Requires admin authentication.",
+        description="Upload a PDF resume to local storage and make it active. Requires admin authentication.",
     )
     def post(self, request):
         serializer = ResumeSerializer(data=request.data)
@@ -104,7 +122,7 @@ class ResumeDeleteView(generics.DestroyAPIView):
     serializer_class = ResumeSerializer
     permission_classes = [IsAdminUser]
 
-    @extend_schema(description="Delete a resume record and its Cloudinary file. Requires admin authentication.")
+    @extend_schema(description="Delete a resume and its stored file. Requires admin authentication.")
     def destroy(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)
 

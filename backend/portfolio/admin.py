@@ -1,11 +1,10 @@
-import cloudinary.exceptions
-import cloudinary.uploader
 from django.contrib import admin
 from django import forms
-from django.core.exceptions import ValidationError
+from django.core.exceptions import SuspiciousFileOperation, ValidationError
 from django.utils.html import format_html
 
 from .models import PortfolioImage, Resume, Contact
+from .storage import store_resume
 from .validators import get_resume_file_error
 
 
@@ -21,7 +20,7 @@ class ResumeAdminForm(forms.ModelForm):
     resume_file = forms.FileField(
         required=False,
         label="PDF file",
-        help_text="Upload a PDF to Cloudinary. Add a new resume to replace the active version.",
+        help_text="Upload a PDF to local storage. Add a new resume to replace the active version.",
     )
 
     class Meta:
@@ -53,25 +52,16 @@ class ResumeAdminForm(forms.ModelForm):
             return cleaned_data
 
         try:
-            self.cloudinary_upload = cloudinary.uploader.upload(
-                uploaded_file,
-                folder="portfolio/resumes",
-                resource_type="raw",
-            )
-        except cloudinary.exceptions.Error as exc:
-            self.add_error("resume_file", f"Cloudinary upload failed: {exc}")
-            return cleaned_data
-
-        if not self.cloudinary_upload.get("secure_url") or not self.cloudinary_upload.get("public_id"):
-            self.add_error("resume_file", "Cloudinary did not return the uploaded file details.")
+            self.resume_storage_details = store_resume(uploaded_file)
+        except (OSError, SuspiciousFileOperation) as exc:
+            self.add_error("resume_file", f"Local resume storage failed: {exc}")
         return cleaned_data
 
     def save(self, commit=True):
         instance = super().save(commit=False)
-        upload = getattr(self, "cloudinary_upload", None)
-        if upload:
-            instance.file_url = upload["secure_url"]
-            instance.public_id = upload["public_id"]
+        storage_details = getattr(self, "resume_storage_details", None)
+        if storage_details:
+            _, instance.public_id, instance.file_url = storage_details
 
         if commit:
             instance.save()
@@ -89,7 +79,7 @@ class ResumeAdmin(admin.ModelAdmin):
     readonly_fields = ['file_url', 'public_id', 'uploaded_at']
     fields = ['title', 'is_active', 'resume_file', 'file_url', 'public_id', 'uploaded_at']
 
-    @admin.display(description="Cloudinary file")
+    @admin.display(description="Resume file")
     def file_link(self, obj):
         return format_html('<a href="{}" target="_blank" rel="noopener">View PDF</a>', obj.file_url)
 
