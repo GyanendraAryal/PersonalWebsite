@@ -53,3 +53,11 @@ class AdminProfileView(APIView):
             },
             status=status.HTTP_200_OK,
         )
+
+
+class PingAPIView(APIView):
+    def get(self, request):
+        return Response(
+            {"message": "Request received"},
+            status=status.HTTP_200_OK,
+        )
